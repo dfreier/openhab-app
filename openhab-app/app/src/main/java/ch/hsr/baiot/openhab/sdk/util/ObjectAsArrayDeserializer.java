@@ -1,4 +1,4 @@
-package ch.hsr.baiot.openhab.model;
+package ch.hsr.baiot.openhab.sdk.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;

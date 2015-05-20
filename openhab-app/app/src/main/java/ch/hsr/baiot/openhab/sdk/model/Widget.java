@@ -1,8 +1,6 @@
-package ch.hsr.baiot.openhab.model;
+package ch.hsr.baiot.openhab.sdk.model;
 
-import java.util.Arrays;
-
-import ch.hsr.baiot.openhab.util.ArrayUtils;
+import ch.hsr.baiot.openhab.sdk.util.ArrayUtils;
 
 /**
  * Created by dominik on 12.05.15.
@@ -28,7 +26,6 @@ public class Widget implements MemberEquals<Widget> {
         if(this.item != null ? !this.item.equals(other.item) : other.item != null) return false;
         if(this.linkedPage != null ? !this.linkedPage.equals(other.linkedPage) : other.linkedPage != null) return false;
         if(this.widget != null ? !ArrayUtils.hasEqualMembers(this.widget, other.widget) : other.widget != null) return false;
-
 
         return true;
     }

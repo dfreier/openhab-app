@@ -1,9 +1,9 @@
-package ch.hsr.baiot.openhab.service.api;
+package ch.hsr.baiot.openhab.sdk.api;
 
 
-import ch.hsr.baiot.openhab.model.Page;
-import ch.hsr.baiot.openhab.model.Sitemap;
-import ch.hsr.baiot.openhab.model.SitemapListHolder;
+import ch.hsr.baiot.openhab.sdk.model.Page;
+import ch.hsr.baiot.openhab.sdk.model.Sitemap;
+import ch.hsr.baiot.openhab.sdk.model.SitemapListHolder;
 import retrofit.http.GET;
 import retrofit.http.Headers;
 import retrofit.http.Path;

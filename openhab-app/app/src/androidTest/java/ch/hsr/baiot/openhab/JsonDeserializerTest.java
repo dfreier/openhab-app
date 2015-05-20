@@ -5,10 +5,10 @@ import android.test.AndroidTestCase;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import ch.hsr.baiot.openhab.model.ObjectAsArrayDeserializer;
-import ch.hsr.baiot.openhab.model.Sitemap;
-import ch.hsr.baiot.openhab.model.SitemapListHolder;
-import ch.hsr.baiot.openhab.model.Widget;
+import ch.hsr.baiot.openhab.sdk.util.ObjectAsArrayDeserializer;
+import ch.hsr.baiot.openhab.sdk.model.Sitemap;
+import ch.hsr.baiot.openhab.sdk.model.SitemapListHolder;
+import ch.hsr.baiot.openhab.sdk.model.Widget;
 
 /**
  * Created by dominik on 13.05.15.

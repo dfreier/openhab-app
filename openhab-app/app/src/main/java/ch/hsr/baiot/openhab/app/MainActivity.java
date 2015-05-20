@@ -1,44 +1,32 @@
-package ch.hsr.baiot.openhab.ui;
+package ch.hsr.baiot.openhab.app;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
 import ch.hsr.baiot.openhab.R;
-import ch.hsr.baiot.openhab.model.ObjectAsArrayDeserializer;
-import ch.hsr.baiot.openhab.model.Page;
-import ch.hsr.baiot.openhab.model.Sitemap;
-import ch.hsr.baiot.openhab.model.Widget;
-import ch.hsr.baiot.openhab.model.WidgetModel;
+import ch.hsr.baiot.openhab.app.fragment.PageFragment;
+import ch.hsr.baiot.openhab.sdk.OpenHabSdk;
+import ch.hsr.baiot.openhab.sdk.model.WidgetListModel;
 import ch.hsr.baiot.openhab.service.PageService;
-import ch.hsr.baiot.openhab.service.api.OpenHabApi;
-import retrofit.RestAdapter;
-import retrofit.converter.GsonConverter;
-import rx.Subscriber;
+import ch.hsr.baiot.openhab.sdk.api.OpenHabApi;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 
-public class MainActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener, PageFragment.PageFragmentListener {
 
     private PageFragment mPageFragment;
     private PageService mService;
     private OpenHabApi mApi;
-    private WidgetModel mWidgetModel;
+    private WidgetListModel mWidgetListModel;
     private Subscription mPageSubscription;
     private boolean isReloading = false;
 
@@ -47,32 +35,24 @@ public class MainActivity extends Activity implements SwipeRefreshLayout.OnRefre
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPageFragment = new PageFragment();
+        OpenHabSdk.initialize();
+
+        PageActivity.start(this, "demo", "0000");
+
+       /* mPageFragment = PageFragment.newInstance("demo", "0000");
+        mPageFragment.setPageFragmentListener(this);
         if (savedInstanceState == null) {
 
             getFragmentManager().beginTransaction()
                     .add(R.id.container, mPageFragment)
                     .commit();
-        }
-        Log.d("test", "started");
+        }*/
 
 
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Widget[].class, new ObjectAsArrayDeserializer<Widget>(Widget.class))
-                .registerTypeAdapter(Sitemap[].class, new ObjectAsArrayDeserializer<Sitemap>(Sitemap.class))
-                .create();
-
-        RestAdapter adapter = new RestAdapter.Builder()
-                .setEndpoint("http://demo.openhab.org:8080")
-                .setConverter(new GsonConverter(gson))
-                .build();
 
 
-        mPageFragment.setRefreshListener(this);
-        mApi = adapter.create(OpenHabApi.class);
 
-
-        startPageService();
+        //startPageService();
 
 
 
@@ -121,7 +101,7 @@ public class MainActivity extends Activity implements SwipeRefreshLayout.OnRefre
 
     }
 
-    private void startPageService() {
+   /* private void startPageService() {
         isReloading = true;
         if(mPageSubscription != null) {
             mPageSubscription.unsubscribe();
@@ -130,8 +110,8 @@ public class MainActivity extends Activity implements SwipeRefreshLayout.OnRefre
             mService.close();
         }
 
-        mWidgetModel = new WidgetModel();
-        mPageFragment.setPageModel(mWidgetModel);
+        mWidgetListModel = new WidgetListModel();
+        mPageFragment.setPageModel(mWidgetListModel);
         mService = new PageService(mApi);
         mPageSubscription = mService.observePage("demo", "FF_Bath")
                 .subscribeOn(Schedulers.io())
@@ -150,11 +130,11 @@ public class MainActivity extends Activity implements SwipeRefreshLayout.OnRefre
                     @Override
                     public void onNext(Page page) {
                         mPageFragment.setRefreshing(false);
-                        mWidgetModel.setWidgets(Arrays.asList(page.widget));
+                        mWidgetListModel.setWidgets(Arrays.asList(page.widget));
                     }
                 });
     }
-
+*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -180,22 +160,18 @@ public class MainActivity extends Activity implements SwipeRefreshLayout.OnRefre
 
     @Override
     public void onRefresh() {
-        startPageService();
+       // startPageService();
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
+    @Override
+    public void onNavigateTo(String sitemap, String page) {
+        FragmentManager manager = getFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
 
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_items, container, false);
-            return rootView;
-        }
+        PageFragment fragment = PageFragment.newInstance(sitemap, page);
+        transaction.add(R.id.container, fragment).addToBackStack("");
+        transaction.commit();
     }
+
+
 }

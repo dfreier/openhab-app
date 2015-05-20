@@ -1,8 +1,8 @@
-package ch.hsr.baiot.openhab.model;
+package ch.hsr.baiot.openhab.sdk.model;
 
-import java.util.Arrays;
-
-import ch.hsr.baiot.openhab.util.ArrayUtils;
+import ch.hsr.baiot.openhab.sdk.OpenHabSdk;
+import ch.hsr.baiot.openhab.sdk.util.ArrayUtils;
+import rx.Observable;
 
 /**
  * Created by dominik on 12.05.15.
@@ -14,6 +14,8 @@ public class Page implements MemberEquals<Page>{
     public String link = "";
     public Boolean leaf = false;
     public Widget[] widget = new Widget[0];
+
+
 
 
 
@@ -46,4 +48,10 @@ public class Page implements MemberEquals<Page>{
 
         return true;
     }
+
+    public Observable<Page> subscribeToPageUpdates(String sitemap) {
+        return OpenHabSdk.getPushClient().subscribe(sitemap, this);
+    }
+
+
 }

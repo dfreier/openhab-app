@@ -5,13 +5,13 @@ import android.test.AndroidTestCase;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.hsr.baiot.openhab.model.Widget;
-import ch.hsr.baiot.openhab.util.ListUtils;
+import ch.hsr.baiot.openhab.sdk.model.Widget;
+import ch.hsr.baiot.openhab.sdk.util.ListUtils;
 
 /**
  * Created by dominik on 18.05.15.
  */
-public class WidgetModelTest extends AndroidTestCase {
+public class WidgetListModelTest extends AndroidTestCase {
 
     public void testListUtils() {
         Widget[] widgets1 = new Widget[4];

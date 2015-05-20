@@ -1,4 +1,4 @@
-package ch.hsr.baiot.openhab.model;
+package ch.hsr.baiot.openhab.sdk.model;
 
 /**
  * Created by dominik on 12.05.15.

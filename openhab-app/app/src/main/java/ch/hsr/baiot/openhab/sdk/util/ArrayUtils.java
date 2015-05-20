@@ -1,6 +1,6 @@
-package ch.hsr.baiot.openhab.util;
+package ch.hsr.baiot.openhab.sdk.util;
 
-import ch.hsr.baiot.openhab.model.MemberEquals;
+import ch.hsr.baiot.openhab.sdk.model.MemberEquals;
 
 /**
  * Created by dominik on 19.05.15.

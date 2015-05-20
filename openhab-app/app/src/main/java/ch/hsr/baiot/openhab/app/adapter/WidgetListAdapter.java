@@ -1,7 +1,8 @@
-package ch.hsr.baiot.openhab.ui;
+package ch.hsr.baiot.openhab.app.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -10,8 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.hsr.baiot.openhab.R;
-import ch.hsr.baiot.openhab.model.ListModificationEvent;
-import ch.hsr.baiot.openhab.model.Widget;
+import ch.hsr.baiot.openhab.sdk.model.ListModificationEvent;
+import ch.hsr.baiot.openhab.sdk.model.Widget;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -19,18 +20,21 @@ import rx.schedulers.Schedulers;
 /**
  * Created by dominik on 18.05.15.
  */
-public class PageAdapter extends RecyclerView.Adapter<PageAdapter.ViewHolder> {
+public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.ViewHolder> {
 
 
     private List<Widget> mWidgets = new LinkedList<>();
+    private OnWidgetListClickListener mListener;
 
     Observable<ListModificationEvent<Widget>> mModifications;
 
 
 
-    public PageAdapter(Observable<ListModificationEvent<Widget>> modifications) {
+    public WidgetListAdapter(Observable<ListModificationEvent<Widget>> modifications, OnWidgetListClickListener listener) {
 
         mModifications = modifications;
+        mListener = listener;
+
 
         mModifications
                 .subscribeOn(Schedulers.io())
@@ -94,13 +98,14 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         FrameLayout frame = (FrameLayout) LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_page, viewGroup, false);
-        ViewHolder vh = new ViewHolder(frame);
+        ViewHolder vh = new ViewHolder(frame, mListener);
         return vh;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        viewHolder.mTextView.setText(mWidgets.get(i).item.name + " : " + mWidgets.get(i).item.state);
+        viewHolder.widget = mWidgets.get(i);
+        viewHolder.textView.setText(mWidgets.get(i).item.name + " : " + mWidgets.get(i).item.state);
     }
 
     @Override
@@ -108,11 +113,26 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.ViewHolder> {
         return mWidgets.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView mTextView;
-        public ViewHolder(FrameLayout frame) {
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public TextView textView;
+        private OnWidgetListClickListener mListener;
+        public Widget widget;
+
+        public ViewHolder(FrameLayout frame, OnWidgetListClickListener listener) {
             super(frame);
-            mTextView = (TextView) frame.findViewById(R.id.text_view);
+            mListener = listener;
+            textView = (TextView) frame.findViewById(R.id.text_view);
+            frame.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            if(mListener != null) mListener.onClick(widget);
+        }
+    }
+
+    public static interface OnWidgetListClickListener {
+        public void onClick(Widget widget);
     }
 }

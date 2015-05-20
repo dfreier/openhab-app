@@ -1,11 +1,9 @@
 package ch.hsr.baiot.openhab.service;
 
-import ch.hsr.baiot.openhab.model.Page;
-import ch.hsr.baiot.openhab.service.api.OpenHabApi;
+import ch.hsr.baiot.openhab.sdk.model.Page;
+import ch.hsr.baiot.openhab.sdk.api.OpenHabApi;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action0;
-import rx.subjects.PublishSubject;
 import rx.subjects.ReplaySubject;
 import rx.subjects.SerializedSubject;
 import rx.subjects.Subject;

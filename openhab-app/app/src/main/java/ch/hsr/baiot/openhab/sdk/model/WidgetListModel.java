@@ -1,4 +1,4 @@
-package ch.hsr.baiot.openhab.model;
+package ch.hsr.baiot.openhab.sdk.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import ch.hsr.baiot.openhab.util.ListUtils;
+import ch.hsr.baiot.openhab.sdk.util.ListUtils;
 import rx.Observable;
 import rx.subjects.ReplaySubject;
 import rx.subjects.SerializedSubject;
@@ -16,7 +16,7 @@ import rx.subjects.Subject;
 /**
  * Created by dominik on 18.05.15.
  */
-public class WidgetModel {
+public class WidgetListModel {
 
     private Subject<ListModificationEvent<Widget>, ListModificationEvent<Widget>> subject = new SerializedSubject<>(ReplaySubject.create());
 
@@ -116,9 +116,5 @@ public class WidgetModel {
     public Observable<ListModificationEvent<Widget>> onModification() {
         return subject;
     }
-
-
-
-
 
 }

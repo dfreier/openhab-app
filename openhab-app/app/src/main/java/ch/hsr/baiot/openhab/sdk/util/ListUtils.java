@@ -1,4 +1,4 @@
-package ch.hsr.baiot.openhab.util;
+package ch.hsr.baiot.openhab.sdk.util;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import ch.hsr.baiot.openhab.model.MemberEquals;
+import ch.hsr.baiot.openhab.sdk.model.MemberEquals;
 
 
 /**
