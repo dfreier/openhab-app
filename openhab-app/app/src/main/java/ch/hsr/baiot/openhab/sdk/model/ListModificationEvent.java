@@ -5,19 +5,19 @@ package ch.hsr.baiot.openhab.sdk.model;
  */
 public class ListModificationEvent<T> {
 
-    public static final int TRANSFORMATION_TYPE_INSERTED = 0;
-    public static final int TRANSFORMATION_TYPE_CHANGED = 1;
-    public static final int TRANSFORMATION_TYPE_REMOVED = 2;
-    public static final int TRANSFORMATION_TYPE_MOVED = 3;
+    public static final int INSERTED = 0;
+    public static final int CHANGED = 1;
+    public static final int REMOVED = 2;
+    public static final int MOVED = 3;
 
     public T item;
-    public int transformationType;
+    public int modificationType;
     public int oldPos;
     public int newPos;
 
-    public ListModificationEvent(T item, int transformationType, int oldPos, int newPos) {
+    public ListModificationEvent(T item, int modificationType, int oldPos, int newPos) {
         this.item = item;
-        this.transformationType = transformationType;
+        this.modificationType = modificationType;
         this.oldPos = oldPos;
         this.newPos = newPos;
     }

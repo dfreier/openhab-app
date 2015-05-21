@@ -40,18 +40,18 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(t -> {
-                    int type = t.transformationType;
-                    switch (t.transformationType) {
-                        case ListModificationEvent.TRANSFORMATION_TYPE_INSERTED:
+                    int type = t.modificationType;
+                    switch (t.modificationType) {
+                        case ListModificationEvent.INSERTED:
                             itemInserted(t);
                             break;
-                        case ListModificationEvent.TRANSFORMATION_TYPE_CHANGED:
+                        case ListModificationEvent.CHANGED:
                             itemChanged(t);
                             break;
-                        case ListModificationEvent.TRANSFORMATION_TYPE_REMOVED:
+                        case ListModificationEvent.REMOVED:
                             itemRemoved(t);
                             break;
-                        case ListModificationEvent.TRANSFORMATION_TYPE_MOVED:
+                        case ListModificationEvent.MOVED:
                             itemMoved(t);
                         default:
                             break;
@@ -95,7 +95,7 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
 
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
         FrameLayout frame = (FrameLayout) LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_page, viewGroup, false);
         ViewHolder vh = new ViewHolder(frame, mListener);
@@ -105,7 +105,18 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
         viewHolder.widget = mWidgets.get(i);
-        viewHolder.textView.setText(mWidgets.get(i).item.name + " : " + mWidgets.get(i).item.state);
+        if(mWidgets.get(i).type.equals("Frame")) {
+            viewHolder.textView.setText(mWidgets.get(i).label);
+        }
+        else viewHolder.textView.setText(mWidgets.get(i).label + " : " + mWidgets.get(i).item.state);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        Widget widget = mWidgets.get(position);
+        if(widget.type.equals("Frame")) return 1;
+        else if(widget.type.equals("Group")) return 2;
+        return 0;
     }
 
     @Override

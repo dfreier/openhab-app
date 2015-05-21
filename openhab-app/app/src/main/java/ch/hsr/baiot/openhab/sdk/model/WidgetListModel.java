@@ -29,6 +29,7 @@ public class WidgetListModel {
     public void setWidgets(List<Widget> modified) {
 
 
+
         List<Widget> original = new ArrayList<>(widgets);
         List<Widget> state = new ArrayList<>(widgets);
 
@@ -57,7 +58,7 @@ public class WidgetListModel {
             int index = original.indexOf(widget);
             subject.onNext( new ListModificationEvent<Widget>(
                     widget,
-                    ListModificationEvent.TRANSFORMATION_TYPE_CHANGED,
+                    ListModificationEvent.CHANGED,
                     index,
                     index
             ));
@@ -68,7 +69,7 @@ public class WidgetListModel {
         for(Widget widget : removed) {
             subject.onNext( new ListModificationEvent<Widget>(
                     widget,
-                    ListModificationEvent.TRANSFORMATION_TYPE_REMOVED,
+                    ListModificationEvent.REMOVED,
                     original.indexOf(widget),
                     -1
             ));
@@ -79,7 +80,7 @@ public class WidgetListModel {
         for(Widget widget : added) {
             ListModificationEvent<Widget> event = new ListModificationEvent<Widget>(
                     widget,
-                    ListModificationEvent.TRANSFORMATION_TYPE_INSERTED,
+                    ListModificationEvent.INSERTED,
                     -1,
                     modified.indexOf(widget)
             );
@@ -94,7 +95,7 @@ public class WidgetListModel {
             int newPos = pairList.get(1);
             subject.onNext( new ListModificationEvent<Widget>(
                     modified.get(newPos),
-                    ListModificationEvent.TRANSFORMATION_TYPE_MOVED,
+                    ListModificationEvent.MOVED,
                     oldPos,
                     newPos
             ));

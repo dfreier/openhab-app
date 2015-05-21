@@ -26,7 +26,9 @@ public class MainActivity extends Activity    {
 
         OpenHabSdk.initialize();
 
-        PageActivity.start(this, "demo", "0000");
+        //SetupActivity.start(this);
+
+        PageActivity.start(this, "demo", "demo", "Demo House");
     }
 
     @Override

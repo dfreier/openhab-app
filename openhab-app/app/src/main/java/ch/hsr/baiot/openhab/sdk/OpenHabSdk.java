@@ -7,8 +7,7 @@ import ch.hsr.baiot.openhab.sdk.model.Sitemap;
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 import ch.hsr.baiot.openhab.sdk.util.ObjectAsArrayDeserializer;
 import ch.hsr.baiot.openhab.sdk.websockets.LongPollingClient;
-import ch.hsr.baiot.openhab.sdk.websockets.PushClient;
-import ch.hsr.baiot.openhab.sdk.websockets.WebSocketClient;
+import ch.hsr.baiot.openhab.sdk.websockets.SocketClient;
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
 
@@ -18,9 +17,10 @@ import retrofit.converter.GsonConverter;
 public class OpenHabSdk {
 
     private static OpenHabApi mOpenHabApi;
-    private static PushClient mPushClient;
+    private static SocketClient mSocketClient;
     private static GsonBuilder mGsonBuilder;
 
+    public static String AtmosphereTrackingId;
 
     public static void initialize() {
         mGsonBuilder = new GsonBuilder()
@@ -34,13 +34,13 @@ public class OpenHabSdk {
                 .build();
 
         mOpenHabApi = adapter.create(OpenHabApi.class);
-        mPushClient = new LongPollingClient();
+        mSocketClient = new LongPollingClient();
 
     }
 
     public static OpenHabApi getOpenHabApi() {
         return mOpenHabApi;
     }
-    public static PushClient getPushClient() {return mPushClient;}
+    public static SocketClient getSocketClient() {return mSocketClient;}
     public static GsonBuilder getGsonBuilder() { return mGsonBuilder; }
 }

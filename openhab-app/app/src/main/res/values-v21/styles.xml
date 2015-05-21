@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="primary">@color/indigo_500</color>
+    <color name="primary_dark">@color/indigo_700</color>
+    <color name="colorAccent">@color/cyan_500</color>
+    <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Material.Light">
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/abc_primary_text_material_dark</item>
     </style>
+
 </resources>

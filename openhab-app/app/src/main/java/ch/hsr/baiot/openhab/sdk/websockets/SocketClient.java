@@ -6,7 +6,7 @@ import rx.Observable;
 /**
  * Created by dominik on 20.05.15.
  */
-public interface PushClient {
+public interface SocketClient {
 
-    public Observable<Page> subscribe(String sitemap, Page page);
+    public Observable<Page> open(String sitemap, String pageId);
 }

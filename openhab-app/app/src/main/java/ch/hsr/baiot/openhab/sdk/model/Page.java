@@ -49,9 +49,5 @@ public class Page implements MemberEquals<Page>{
         return true;
     }
 
-    public Observable<Page> subscribeToPageUpdates(String sitemap) {
-        return OpenHabSdk.getPushClient().subscribe(sitemap, this);
-    }
-
 
 }
