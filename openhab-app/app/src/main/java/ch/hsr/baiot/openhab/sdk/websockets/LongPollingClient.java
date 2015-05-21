@@ -41,7 +41,7 @@ public class LongPollingClient implements SocketClient {
         return new Request.Builder()
                 .url(url)
                 .addHeader("X-Atmosphere-Framework", "1.0")
-             //   .addHeader("X-Atmosphere-tracking-id", "0")
+                .addHeader("X-Atmosphere-tracking-id", OpenHabSdk.AtmosphereTrackingId == null ? "0" : OpenHabSdk.AtmosphereTrackingId)
                 .addHeader("Accept", "application/json")
                 .addHeader("X-Atmosphere-Transport", "long-polling")
                 .tag(pageId)
@@ -69,24 +69,28 @@ public class LongPollingClient implements SocketClient {
             @Override
             public void onResponse(Response response) throws IOException {
 
-              //  OpenHabSdk.AtmosphereTrackingId = response.header("X-Atmosphere-tracking-id",
-                //        OpenHabSdk.AtmosphereTrackingId);
+                OpenHabSdk.AtmosphereTrackingId = response.header("X-Atmosphere-tracking-id",
+                        OpenHabSdk.AtmosphereTrackingId);
                 if(!mPageCalls.containsKey(pageId)) return;
                 mPageCalls.remove(pageId);
 
-                if(response.isSuccessful()) {
+                try {
+                    if(response.isSuccessful()) {
 
-                    Gson gson = OpenHabSdk.getGsonBuilder().create();
-                    Page page = gson.fromJson(response.body().charStream(), Page.class);
-                    if(page == null) {
-                        Log.d("test", "empty update, " + pageId);
-                        subject.onError(new SocketResponseEmptyException());
-                    } else {
-                        Log.d("test", "data update, " + pageId);
-                        subject.onNext(page);
-                        subject.onCompleted();
+                        Gson gson = OpenHabSdk.getGsonBuilder().create();
+                        Page page = gson.fromJson(response.body().charStream(), Page.class);
+                        if(page == null) {
+                            Log.d("test", "empty update, " + pageId);
+                            throw new SocketResponseEmptyException();
+                        } else {
+                            Log.d("test", "data update, " + pageId);
+                            subject.onNext(page);
+                            subject.onCompleted();
+                        }
+
                     }
-
+                } catch(Exception e) {
+                    subject.onError(e);
                 }
             }
         });

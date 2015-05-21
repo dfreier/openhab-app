@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="72dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_marginTop="16sp"
+        android:layout_marginLeft="72dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/text_view"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/text_detail"
+            android:fontFamily="sans-serif"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+  <!--  <android.support.v7.widget.SwitchCompat
+        android:id="@+id/switch_compat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="16dp"
+        android:checked="false"/>-->
+
+
+
+    <ImageView
+        android:id="@+id/icon"
+        android:src="@drawable/icon_dummy"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+</RelativeLayout>

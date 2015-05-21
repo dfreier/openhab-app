@@ -1,9 +1,11 @@
 package ch.hsr.baiot.openhab.app;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,13 +24,20 @@ import ch.hsr.baiot.openhab.sdk.model.Page;
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 import ch.hsr.baiot.openhab.sdk.model.WidgetListModel;
 import ch.hsr.baiot.openhab.sdk.websockets.SocketResponseEmptyException;
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInUpAnimator;
+import jp.wasabeef.recyclerview.animators.LandingAnimator;
+import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class PageActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener,
+public class PageActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener,
         WidgetListAdapter.OnWidgetListClickListener{
 
     private static final String ARG_SITEMAP = "argSitemap";
@@ -77,7 +86,6 @@ public class PageActivity extends Activity implements SwipeRefreshLayout.OnRefre
     private void prepareUserInterface() {
         setContentView(R.layout.activity_page);
         ButterKnife.inject(this);
-
         mRefreshLayout.setOnRefreshListener(this);
         mRefreshLayout.setColorSchemeResources(
                 R.color.colorAccent,
@@ -86,7 +94,9 @@ public class PageActivity extends Activity implements SwipeRefreshLayout.OnRefre
         );
         mLayoutManager = new LinearLayoutManager(this);
         mWidgetListView.setLayoutManager(mLayoutManager);
-        getActionBar().setTitle(mPageTitle);
+        mWidgetListView.setItemAnimator(new FadeInAnimator());
+        mWidgetListView.getItemAnimator().setAddDuration(800);
+        getSupportActionBar().setTitle(mPageTitle);
     }
 
     private void assignArgumentsFromIntent() {

@@ -5,13 +5,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import ch.hsr.baiot.openhab.R;
+import ch.hsr.baiot.openhab.app.viewholder.WidgetFrame;
+import ch.hsr.baiot.openhab.app.viewholder.WidgetViewHolder;
 import ch.hsr.baiot.openhab.sdk.model.ListModificationEvent;
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 import rx.Observable;
@@ -21,7 +23,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by dominik on 18.05.15.
  */
-public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.ViewHolder> {
+public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
 
 
     private List<Widget> mWidgets = new LinkedList<>();
@@ -97,20 +99,44 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
 
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
-        FrameLayout frame = (FrameLayout) LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.item_page, viewGroup, false);
-        ViewHolder vh = new ViewHolder(frame, mListener);
+    public WidgetViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
+        ViewGroup container = null;
+        WidgetViewHolder vh = null;
+        switch(type) {
+            case 1:
+                container = (ViewGroup) LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.widget_frame, viewGroup, false);
+                vh = new WidgetFrame(container, mListener);
+                break;
+            default:
+                container = (ViewGroup) LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.widget_text, viewGroup, false);
+                vh = new DefaultViewHolder(container, mListener);
+                break;
+        }
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(WidgetViewHolder viewHolder, int i) {
         viewHolder.widget = mWidgets.get(i);
-        if(mWidgets.get(i).type.equals("Frame")) {
-            viewHolder.textView.setText(mWidgets.get(i).label);
+
+        if(viewHolder.widget.type.equals("Frame")) {
+            ((WidgetFrame) viewHolder).textView.setText(mWidgets.get(i).label);
         }
-        else viewHolder.textView.setText(mWidgets.get(i).label + " : " + mWidgets.get(i).item.state);
+        else if(viewHolder.widget.type.equals("Switch") && viewHolder.widget.icon.contains("switch")){
+
+            if(viewHolder.widget.icon.equals("switch-on")) {
+                ((DefaultViewHolder)viewHolder).icon.setImageResource(R.drawable.switch_on);
+            } else {
+                ((DefaultViewHolder)viewHolder).icon.setImageResource(R.drawable.switch_off);
+            }
+            ((DefaultViewHolder)viewHolder).textView.setText(mWidgets.get(i).label);
+            ((DefaultViewHolder)viewHolder).detailTextView.setText(mWidgets.get(i).item.state);
+        } else {
+            ((DefaultViewHolder)viewHolder).textView.setText(mWidgets.get(i).label);
+            ((DefaultViewHolder)viewHolder).detailTextView.setText(mWidgets.get(i).item.state);
+        }
     }
 
     @Override
@@ -127,16 +153,19 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
     }
 
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class DefaultViewHolder extends WidgetViewHolder implements View.OnClickListener {
         public TextView textView;
+        public TextView detailTextView;
+        public ImageView icon;
         private OnWidgetListClickListener mListener;
-        public Widget widget;
 
-        public ViewHolder(FrameLayout frame, OnWidgetListClickListener listener) {
-            super(frame);
+        public DefaultViewHolder(ViewGroup container, OnWidgetListClickListener listener) {
+            super(container);
             mListener = listener;
-            textView = (TextView) frame.findViewById(R.id.text_view);
-            frame.setOnClickListener(this);
+            textView = (TextView) container.findViewById(R.id.text_view);
+            detailTextView = (TextView) container.findViewById(R.id.text_detail);
+            icon = (ImageView) container.findViewById(R.id.icon);
+            container.setOnClickListener(this);
         }
 
         @Override
