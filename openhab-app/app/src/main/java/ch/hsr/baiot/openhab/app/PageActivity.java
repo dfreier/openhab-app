@@ -101,7 +101,6 @@ public class PageActivity extends Activity implements SwipeRefreshLayout.OnRefre
     private void startInitialPageLoad() {
         if(mSitemapName != null && mPageId != null) {
             loadPage();
-            subscribeToPageUpdates();
         }
     }
 
@@ -131,9 +130,8 @@ public class PageActivity extends Activity implements SwipeRefreshLayout.OnRefre
     }
 
     private void loadPage() {
-        if(mLoadPageSubscription != null) {
-            mLoadPageSubscription.unsubscribe();
-        }
+        unsubscribeFromActiveSubscriptions();
+        Log.d("test", "-------------------------------------");
         Log.d("test", "load, " + mPageId);
         setPageIsLoading(true);
         mLoadPageSubscription = OpenHabSdk.getOpenHabApi().getPage(mSitemapName, mPageId)
@@ -164,49 +162,40 @@ public class PageActivity extends Activity implements SwipeRefreshLayout.OnRefre
                         mWidgets = widgets;
                     }
                 });
+        subscribeToPageUpdates();
     }
 
     private void subscribeToPageUpdates() {
-        if(mPageUpdateSubscription != null) {
-            mPageUpdateSubscription.unsubscribe();
-        }
-        if(mPageSocket == null) {
-            mPageSocket = OpenHabSdk.getSocketClient().open(mSitemapName, mPageId)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .flatMap(page -> Observable.from(page.widget))
-                    .flatMap(widget -> {
-                        if (widget.type.equals("Frame")) {
-                            return Observable.from(widget.widget).startWith(widget);
-                        } else {
-                            return Observable.just(widget);
-                        }
-                    })
-                    .toList();
-        }
 
-        mPageUpdateSubscription = mPageSocket.subscribe(new Subscriber<List<Widget>>() {
+        mPageUpdateSubscription = OpenHabSdk.getSocketClient().open(mSitemapName, mPageId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(page -> Observable.from(page.widget))
+                .flatMap(widget -> {
+                    if (widget.type.equals("Frame")) {
+                        return Observable.from(widget.widget).startWith(widget);
+                    } else {
+                        return Observable.just(widget);
+                    }
+                })
+                .toList()
+                .subscribe(new Subscriber<List<Widget>>() {
                     @Override
                     public void onCompleted() {
                         //subscribeToPageUpdates();
-                        //loadPage();
+                        loadPage();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-
-                        if(e instanceof SocketTimeoutException) {
-                            subscribeToPageUpdates();
-                        } else if(e instanceof SocketResponseEmptyException) {
-                            loadPage();
-                        }
+                        loadPage();
                     }
 
                     @Override
                     public void onNext(List<Widget> widgets) {
                         //  mPage = page;
-                        mWidgets = widgets;
-                        updateWidgetListModel(widgets);
+                        //mWidgets = widgets;
+                        //updateWidgetListModel(widgets);
                     }
                 });
     }
@@ -218,6 +207,7 @@ public class PageActivity extends Activity implements SwipeRefreshLayout.OnRefre
         }
         updateWidgetListModel(mWidgets);
         setPageIsLoading(false);
+       // subscribeToPageUpdates();
     }
 
 
@@ -229,6 +219,7 @@ public class PageActivity extends Activity implements SwipeRefreshLayout.OnRefre
 
 
     private void updateWidgetListModel(List<Widget> widgets) {
+        Log.d("test", "update ui, " + mPageId);
         mWidgetListModel.setWidgets(widgets);
     }
 

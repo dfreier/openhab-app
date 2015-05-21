@@ -1,6 +1,7 @@
 package ch.hsr.baiot.openhab.app.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,6 +63,7 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
     private void itemChanged(ListModificationEvent<Widget> event) {
         Widget widget = mWidgets.get(event.oldPos);
         if(widget.widgetId.equals(event.item.widgetId)); {
+            Log.d("test", "change from " + widget.item.state + " to " + event.item.item.state);
             widget.type = event.item.type;
             widget.label = event.item.label;
             widget.icon = event.item.icon;

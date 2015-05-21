@@ -27,35 +27,28 @@ import rx.subjects.PublishSubject;
 public class LongPollingClient implements SocketClient {
 
 
-    private String mTrackingId;
     private OkHttpClient mOkHttpClient;
     private Map<String, Call> mPageCalls;
-    private Map<String, PublishSubject<Page>> mPageSubjects;
-    private PublishSubject<Page> mSubject;
 
     public LongPollingClient() {
         mOkHttpClient = new OkHttpClient();
         mOkHttpClient.setConnectTimeout(5, TimeUnit.SECONDS);
-        mOkHttpClient.setReadTimeout(30, TimeUnit.SECONDS);
+        mOkHttpClient.setReadTimeout(20, TimeUnit.SECONDS);
         mPageCalls = new HashMap<>();
-        mPageSubjects = new HashMap<>();
-        mSubject = PublishSubject.create();
     }
 
     private Request createPollingRequest(String url, String pageId) {
         return new Request.Builder()
                 .url(url)
                 .addHeader("X-Atmosphere-Framework", "1.0")
-                .addHeader("X-Atmosphere-tracking-id",
-                        OpenHabSdk.AtmosphereTrackingId == null ? "0" : OpenHabSdk.AtmosphereTrackingId)
+             //   .addHeader("X-Atmosphere-tracking-id", "0")
                 .addHeader("Accept", "application/json")
                 .addHeader("X-Atmosphere-Transport", "long-polling")
                 .tag(pageId)
                 .build();
     }
 
-    private void pollPage (final String pageId, final Request request,
-                           final PublishSubject<Page> subject) {
+    private void pollPage (final String pageId, final Request request, final PublishSubject<Page> subject) {
 
         Call call = mOkHttpClient.newCall(request);
         mPageCalls.put(pageId, call);
@@ -70,32 +63,30 @@ public class LongPollingClient implements SocketClient {
                 if(!"Canceled".equals(e.getMessage())) {
                     Log.d("test", "timeout, " + pageId);
                     subject.onError(e);
-                    pollPage(pageId, request, subject);
                 }
             }
 
             @Override
             public void onResponse(Response response) throws IOException {
 
-                OpenHabSdk.AtmosphereTrackingId = response.header("X-Atmosphere-tracking-id",
-                        OpenHabSdk.AtmosphereTrackingId);
+              //  OpenHabSdk.AtmosphereTrackingId = response.header("X-Atmosphere-tracking-id",
+                //        OpenHabSdk.AtmosphereTrackingId);
                 if(!mPageCalls.containsKey(pageId)) return;
                 mPageCalls.remove(pageId);
 
                 if(response.isSuccessful()) {
-                    try {
-                        Gson gson = OpenHabSdk.getGsonBuilder().create();
-                        Page page = gson.fromJson(response.body().charStream(), Page.class);
-                        if(page == null) {
-                            throw new SocketResponseEmptyException();
-                        } else {
-                            subject.onNext(page);
-                            pollPage(pageId, request, subject);
-                        }
-                    } catch (Exception e) {
-                        mSubject.onError(e);
-                        pollPage(pageId, request, subject);
+
+                    Gson gson = OpenHabSdk.getGsonBuilder().create();
+                    Page page = gson.fromJson(response.body().charStream(), Page.class);
+                    if(page == null) {
+                        Log.d("test", "empty update, " + pageId);
+                        subject.onError(new SocketResponseEmptyException());
+                    } else {
+                        Log.d("test", "data update, " + pageId);
+                        subject.onNext(page);
+                        subject.onCompleted();
                     }
+
                 }
             }
         });
@@ -105,8 +96,6 @@ public class LongPollingClient implements SocketClient {
     public Observable<Page> open(String sitemap, String pageId) {
         final PublishSubject<Page> subject = PublishSubject.create();
 
-        //mPageSubjects.put(pageId, subject);
-
 
         cancelPageCall(pageId);
         Request request = createPollingRequest("http://demo.openhab.org:8080/rest/sitemaps/"
@@ -115,13 +104,15 @@ public class LongPollingClient implements SocketClient {
                 pageId);
         pollPage(pageId, request, subject);
 
-        subject.doOnUnsubscribe(() -> {
-            Log.d("test", "unsubscribe, " + pageId);
-            //mPageSubjects.remove(mSubject);
-            cancelPageCall(pageId);
-        });
 
-        return subject;
+        // IMPORTANT: return the observable that is returned from "doOnUnsubscribe".
+        // If the subject is returned instead, "doOnUnsubscribe" won't be called!!!!
+        return subject.doOnUnsubscribe(() -> {
+            //Log.d("test", "unsubscribe, " + pageId);
+            cancelPageCall(pageId);
+        }).doOnSubscribe(() -> {
+           // Log.d("test", "subscribe, " + pageId);
+        });
     }
 
     private void cancelPageCall(String pageId) {
