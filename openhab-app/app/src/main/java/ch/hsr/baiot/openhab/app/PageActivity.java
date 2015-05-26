@@ -14,8 +14,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.nispok.snackbar.Snackbar;
+import com.nispok.snackbar.SnackbarManager;
+
 import java.net.SocketTimeoutException;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -122,6 +124,10 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
                     finish();
                 }
             }
+
+            Snackbar.with(getApplicationContext())
+                    .text("Angaben gespeichert")
+                    .show(this);
         }
     }
 

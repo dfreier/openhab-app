@@ -45,11 +45,12 @@
 
 
             <RelativeLayout
+                android:id="@+id/container_url"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
                 <ImageView
                     android:id="@+id/icon_tick_url"
-                    android:src="@drawable/ic_check_circle_teal"
+                    android:src="@drawable/ic_check_circle_cyan"
                     android:visibility="gone"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="16dp"
@@ -75,11 +76,12 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/container_sitemap"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
                 <ImageView
                     android:id="@+id/icon_tick_sitemap"
-                    android:src="@drawable/ic_check_circle_teal"
+                    android:src="@drawable/ic_check_circle_cyan"
                     android:visibility="gone"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="16dp"

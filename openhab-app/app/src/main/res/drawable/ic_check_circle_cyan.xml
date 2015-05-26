@@ -2,4 +2,4 @@
 <bitmap
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:src="@drawable/ic_check_circle_black"
-    android:tint="@color/teal_500"/>
+    android:tint="@color/cyan_500"/>

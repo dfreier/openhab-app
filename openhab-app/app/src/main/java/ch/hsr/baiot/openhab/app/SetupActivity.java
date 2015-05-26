@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.transition.Fade;
+import android.transition.TransitionManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -81,16 +84,18 @@ public class SetupActivity extends ActionBarActivity {
 
         mUrlInput.setText(OpenHab.sdk().getEndpoint());
         mSitemapInput.setText(OpenHab.sdk().getSitemap());
-        if(!mFromStart) {
-            checkAvailability();
-        }
+
 
         hideIndicators();
+
+
     }
 
     private void hideIndicators() {
+        TransitionManager.beginDelayedTransition((ViewGroup)findViewById(R.id.container_url), new Fade());
         mTickUrl.setVisibility(View.GONE);
         mProgressUrl.setVisibility(View.GONE);
+        TransitionManager.beginDelayedTransition((ViewGroup)findViewById(R.id.container_sitemap), new Fade());
         mTickSitemap.setVisibility(View.GONE);
         mProgressSitemap.setVisibility(View.GONE);
     }
@@ -111,26 +116,32 @@ public class SetupActivity extends ActionBarActivity {
     }
 
     private void checkAvailability() {
+        TransitionManager.beginDelayedTransition((ViewGroup)findViewById(R.id.container_url), new Fade());
+        TransitionManager.beginDelayedTransition((ViewGroup)findViewById(R.id.container_sitemap), new Fade());
         mTickUrl.setVisibility(View.GONE);
         mProgressUrl.setVisibility(View.VISIBLE);
+        mTickSitemap.setVisibility(View.GONE);
+        mProgressSitemap.setVisibility(View.VISIBLE);
+
         OpenHab.sdk().isOpenHabAvailable(mUrlInput.getText().toString())
                 .subscribe(isAvailable -> setUrlAvailableTick(isAvailable));
 
-        mTickSitemap.setVisibility(View.GONE);
-        mProgressSitemap.setVisibility(View.VISIBLE);
+
         OpenHab.sdk().isSitemapAvailable(mUrlInput.getText().toString(),
                 mSitemapInput.getText().toString())
                 .subscribe(isAvailable -> setSitemapAvailableTick(isAvailable));
     }
 
     private void setUrlAvailableTick(boolean isAvailable) {
-        mTickUrl.setImageResource(isAvailable ? R.drawable.ic_check_circle_teal : R.drawable.ic_error_outline_red);
+        mTickUrl.setImageResource(isAvailable ? R.drawable.ic_check_circle_cyan : R.drawable.ic_error_outline_red);
+        TransitionManager.beginDelayedTransition((ViewGroup)findViewById(R.id.container_url), new Fade());
         mTickUrl.setVisibility(View.VISIBLE);
         mProgressUrl.setVisibility(View.GONE);
     }
 
     private void setSitemapAvailableTick(boolean isAvailable) {
-        mTickSitemap.setImageResource(isAvailable ? R.drawable.ic_check_circle_teal : R.drawable.ic_error_outline_red);
+        mTickSitemap.setImageResource(isAvailable ? R.drawable.ic_check_circle_cyan : R.drawable.ic_error_outline_red);
+        TransitionManager.beginDelayedTransition((ViewGroup)findViewById(R.id.container_sitemap), new Fade());
         mTickSitemap.setVisibility(View.VISIBLE);
         mProgressSitemap.setVisibility(View.GONE);
     }
