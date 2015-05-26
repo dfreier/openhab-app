@@ -41,7 +41,7 @@ public class OpenHab {
     }
 
 
-    public static OpenHab skd() {
+    public static OpenHab sdk() {
         return mSdk;
     }
 
@@ -122,8 +122,8 @@ public class OpenHab {
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(holder -> {
-                    for(int i = 0; i < holder.sitemap.length; i++) {
-                        if(holder.sitemap[i].name.equals(sitemap)) {
+                    for (int i = 0; i < holder.sitemap.length; i++) {
+                        if (holder.sitemap[i].name.equals(sitemap)) {
                             return true;
                         }
                     }

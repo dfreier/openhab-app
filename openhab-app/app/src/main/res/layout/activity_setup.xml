@@ -44,27 +44,66 @@
 
 
 
-            <com.rengwuxian.materialedittext.MaterialEditText
-                android:id="@+id/url_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:imeOptions="flagNoExtractUi"
-                android:layout_marginLeft="72dp"
-                android:layout_marginRight="16dp"
-                app:met_floatingLabel="normal"
-                app:met_floatingLabelText="OpenHAB Url"
-                android:hint="OpenHAB Url"/>
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/icon_tick_url"
+                    android:src="@drawable/ic_check_circle_teal"
+                    android:visibility="gone"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp" />
+                <ProgressBar
+                    android:id="@+id/progress_bar_url"
+                    android:visibility="gone"
+                    android:layout_marginLeft="16dp"
+                    android:layout_centerVertical="true"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp" />
+                <com.rengwuxian.materialedittext.MaterialEditText
+                    android:id="@+id/url_input"
+                    android:layout_marginLeft="72dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="flagNoExtractUi"
+                    app:met_floatingLabel="normal"
+                    app:met_floatingLabelText="OpenHAB Url"
+                    android:hint="OpenHAB Url"/>
+            </RelativeLayout>
 
-            <com.rengwuxian.materialedittext.MaterialEditText
-                android:id="@+id/sitemap_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="72dp"
-                android:layout_marginRight="16dp"
-                android:imeOptions="flagNoExtractUi"
-                app:met_floatingLabel="normal"
-                app:met_floatingLabelText="Sitemap"
-                android:hint="Sitemap"/>
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/icon_tick_sitemap"
+                    android:src="@drawable/ic_check_circle_teal"
+                    android:visibility="gone"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp" />
+                <ProgressBar
+                    android:id="@+id/progress_bar_sitemap"
+                    android:visibility="gone"
+                    android:layout_marginLeft="16dp"
+                    android:layout_centerVertical="true"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp" />
+                <com.rengwuxian.materialedittext.MaterialEditText
+                    android:id="@+id/sitemap_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="72dp"
+                    android:layout_marginRight="16dp"
+                    android:imeOptions="flagNoExtractUi"
+                    app:met_floatingLabel="normal"
+                    app:met_floatingLabelText="Sitemap"
+                    android:hint="Sitemap"/>
+            </RelativeLayout>
+
 
 
             <Button

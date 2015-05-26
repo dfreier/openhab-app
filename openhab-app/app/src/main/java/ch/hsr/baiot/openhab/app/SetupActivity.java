@@ -2,9 +2,7 @@ package ch.hsr.baiot.openhab.app;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,6 +10,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
 
@@ -20,12 +20,11 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import ch.hsr.baiot.openhab.R;
 import ch.hsr.baiot.openhab.sdk.OpenHab;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class SetupActivity extends ActionBarActivity {
 
-
+    public final static String RESULT_ENDPOINT = "resultEndpoint";
+    public final static String RESULT_SITEMAP = "resultSitemap";
     private final static String ARG_FROM_START = "fromStart";
 
     private boolean mFromStart;
@@ -42,12 +41,24 @@ public class SetupActivity extends ActionBarActivity {
     @InjectView(R.id.connection_button)
     Button mButton;
 
-    public static void start(Activity currentActivity, boolean fromStart) {
+    @InjectView(R.id.icon_tick_url)
+    ImageView mTickUrl;
+
+    @InjectView(R.id.icon_tick_sitemap)
+    ImageView mTickSitemap;
+
+    @InjectView(R.id.progress_bar_url)
+    ProgressBar mProgressUrl;
+
+    @InjectView(R.id.progress_bar_sitemap)
+    ProgressBar mProgressSitemap;
+
+    public static void start(Activity currentActivity, boolean fromStart, int requestCode) {
         Intent intent = new Intent(currentActivity, SetupActivity.class);
         Bundle args = new Bundle();
         args.putBoolean(ARG_FROM_START, fromStart);
         intent.putExtras(args);
-        currentActivity.startActivity(intent);
+        currentActivity.startActivityForResult(intent, requestCode);
     }
 
     private void assignArgumentsFromIntent() {
@@ -58,6 +69,8 @@ public class SetupActivity extends ActionBarActivity {
     }
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +79,20 @@ public class SetupActivity extends ActionBarActivity {
         getSupportActionBar().setTitle("Einrichten");
         ButterKnife.inject(this);
 
+        mUrlInput.setText(OpenHab.sdk().getEndpoint());
+        mSitemapInput.setText(OpenHab.sdk().getSitemap());
+        if(!mFromStart) {
+            checkAvailability();
+        }
 
+        hideIndicators();
+    }
+
+    private void hideIndicators() {
+        mTickUrl.setVisibility(View.GONE);
+        mProgressUrl.setVisibility(View.GONE);
+        mTickSitemap.setVisibility(View.GONE);
+        mProgressSitemap.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.checkbox)
@@ -77,41 +103,36 @@ public class SetupActivity extends ActionBarActivity {
     @OnClick(R.id.connection_button)
     public void onClickButton(View view) {
         if(validateInput()) {
-
-            OpenHab.skd().isOpenHabAvailable(mUrlInput.getText().toString())
-                    .subscribe(isAvailable -> setUrlAvailableTick(isAvailable));
-
-            OpenHab.skd().isSitemapAvailable(mUrlInput.getText().toString(),
-                    mSitemapInput.getText().toString())
-                    .subscribe(isAvailable -> setSitemapAvailableTick(isAvailable));
-
-
-            //mUrlInput.setFloatingLabelText("OpenHAB Url available");
-            //mSitemapInput.setFloatingLabelText("Sitemap found");
-
-            /*mUrlInput.setBaseColor(getResources().getColor(R.color.teal_500));
-            mUrlInput.setTextColor(getResources().getColor(R.color.teal_500));
-            mUrlInput.setPrimaryColor(getResources().getColor(R.color.teal_500));
-           // mUrlInput.setHelperTextAlwaysShown(true);
-           // mUrlInput.setFloatingLabelAlwaysShown(true);
-
-
-            mSitemapInput.setBaseColor(getResources().getColor(R.color.teal_500));
-            mSitemapInput.setTextColor(getResources().getColor(R.color.teal_500));
-            mSitemapInput.setPrimaryColor(getResources().getColor(R.color.teal_500));
-           // mSitemapInput.setHelperTextAlwaysShown(true);
-            //mSitemapInput.setFloatingLabelAlwaysShown(true);
-            */
+            checkAvailability();
+        } else {
+            hideIndicators();
         }
         findViewById(R.id.activity_setup).requestFocus();
     }
 
-    private void setUrlAvailableTick(boolean isAvailable) {
+    private void checkAvailability() {
+        mTickUrl.setVisibility(View.GONE);
+        mProgressUrl.setVisibility(View.VISIBLE);
+        OpenHab.sdk().isOpenHabAvailable(mUrlInput.getText().toString())
+                .subscribe(isAvailable -> setUrlAvailableTick(isAvailable));
 
+        mTickSitemap.setVisibility(View.GONE);
+        mProgressSitemap.setVisibility(View.VISIBLE);
+        OpenHab.sdk().isSitemapAvailable(mUrlInput.getText().toString(),
+                mSitemapInput.getText().toString())
+                .subscribe(isAvailable -> setSitemapAvailableTick(isAvailable));
+    }
+
+    private void setUrlAvailableTick(boolean isAvailable) {
+        mTickUrl.setImageResource(isAvailable ? R.drawable.ic_check_circle_teal : R.drawable.ic_error_outline_red);
+        mTickUrl.setVisibility(View.VISIBLE);
+        mProgressUrl.setVisibility(View.GONE);
     }
 
     private void setSitemapAvailableTick(boolean isAvailable) {
-
+        mTickSitemap.setImageResource(isAvailable ? R.drawable.ic_check_circle_teal : R.drawable.ic_error_outline_red);
+        mTickSitemap.setVisibility(View.VISIBLE);
+        mProgressSitemap.setVisibility(View.GONE);
     }
 
     @Override
@@ -140,17 +161,11 @@ public class SetupActivity extends ActionBarActivity {
             String sitemap = mSitemapInput.getText().toString();
             String url = mUrlInput.getText().toString();
 
-            OpenHab.skd().setEndpoint(url);
-            OpenHab.skd().setSitemap(sitemap);
+            Intent resultData = new Intent();
+            resultData.putExtra(RESULT_ENDPOINT, url);
+            resultData.putExtra(RESULT_SITEMAP, sitemap);
+            setResult(Activity.RESULT_OK, resultData);
             finish();
-            if(!mFromStart) {
-                OpenHab.skd().getApi().getSitemap(sitemap)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(s -> {
-                            PageActivity.start(this,sitemap,s.homepage.id, "Demo" );
-                        });
-            }
         }
     }
 
@@ -166,6 +181,8 @@ public class SetupActivity extends ActionBarActivity {
 
         return isValid;
     }
+
+
 
 
 }

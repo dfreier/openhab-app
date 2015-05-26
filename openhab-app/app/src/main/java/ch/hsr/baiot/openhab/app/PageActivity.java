@@ -1,6 +1,7 @@
 package ch.hsr.baiot.openhab.app;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -25,6 +26,9 @@ import ch.hsr.baiot.openhab.sdk.model.Page;
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 import ch.hsr.baiot.openhab.sdk.model.WidgetListModel;
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -34,6 +38,7 @@ import rx.schedulers.Schedulers;
 public class PageActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener,
         WidgetListAdapter.OnWidgetListClickListener{
 
+    private static final int SETUP_ACTIVITY_RESULT = 0;
     private static final String ARG_SITEMAP = "argSitemap";
     private static final String ARG_PAGE = "argPage";
     private static final String ARG_TITLE = "argTitle";
@@ -67,7 +72,7 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
         args.putString(ARG_PAGE, page);
         args.putString(ARG_TITLE, title);
         intent.putExtras(args);
-        currentActivity.startActivity(intent);
+        currentActivity.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(currentActivity).toBundle());
     }
 
     @Override
@@ -83,11 +88,36 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
         // Handle presses on the action bar items
         switch (item.getItemId()) {
             case R.id.action_settings:
-                SetupActivity.start(this, false);
+                SetupActivity.start(this, false, SETUP_ACTIVITY_RESULT);
 
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == SETUP_ACTIVITY_RESULT) {
+            if (resultCode == RESULT_OK) {
+
+                String oldEndpoint = OpenHab.sdk().getEndpoint();
+                String oldSitemap = OpenHab.sdk().getSitemap();
+
+                String endpoint = data.getStringExtra(SetupActivity.RESULT_ENDPOINT);
+                String sitemap = data.getStringExtra(SetupActivity.RESULT_SITEMAP);
+
+                OpenHab.sdk().setEndpoint(endpoint);
+                OpenHab.sdk().setSitemap(sitemap);
+
+
+                if(!oldEndpoint.equals(endpoint) ||
+                   !oldSitemap.equals(sitemap)) {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
+            }
         }
     }
 
@@ -109,8 +139,7 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
         );
         mLayoutManager = new LinearLayoutManager(this);
         mWidgetListView.setLayoutManager(mLayoutManager);
-        mWidgetListView.setItemAnimator(new FadeInAnimator());
-        mWidgetListView.getItemAnimator().setAddDuration(800);
+        mWidgetListView.setItemAnimator(new FadeInRightAnimator());
         getSupportActionBar().setTitle(mPageTitle);
     }
 
@@ -155,11 +184,12 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
     }
 
     private void loadPage() {
+
         unsubscribeFromActiveSubscriptions();
         Log.d("test", "-------------------------------------");
         Log.d("test", "load, " + mPageId);
         setPageIsLoading(true);
-        mLoadPageSubscription = OpenHab.skd().getApi().getPage(mSitemapName, mPageId)
+        mLoadPageSubscription = OpenHab.sdk().getApi().getPage(mSitemapName, mPageId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(page -> Observable.from(page.widget))
@@ -186,7 +216,7 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
 
     private void subscribeToPageUpdates() {
 
-        mPageUpdateSubscription = OpenHab.skd().getSocketClient().open(mSitemapName, mPageId)
+        mPageUpdateSubscription = OpenHab.sdk().getSocketClient().open(mSitemapName, mPageId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Page>() {
@@ -250,6 +280,8 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
     @Override
     public void onRefresh() {
         mUserDidRefresh = true;
+        mWidgetListView.setItemAnimator(new FadeInAnimator());
+        mWidgetListView.getItemAnimator().setAddDuration(800);
         if(!mPageIsLoading) loadPage();
     }
 

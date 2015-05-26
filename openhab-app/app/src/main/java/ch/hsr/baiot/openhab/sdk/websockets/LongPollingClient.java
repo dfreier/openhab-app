@@ -75,7 +75,7 @@ public class LongPollingClient implements SocketClient {
                 try {
                     if(response.isSuccessful()) {
 
-                        Gson gson = OpenHab.skd().getGsonBuilder().create();
+                        Gson gson = OpenHab.sdk().getGsonBuilder().create();
                         Page page = gson.fromJson(response.body().charStream(), Page.class);
                         if(page == null) {
                             Log.d("test", "empty update, " + pageId);
@@ -100,7 +100,7 @@ public class LongPollingClient implements SocketClient {
 
 
         cancelPageCall(pageId);
-        Request request = createPollingRequest( OpenHab.skd().getEndpoint() + "/rest/sitemaps/"
+        Request request = createPollingRequest( OpenHab.sdk().getEndpoint() + "/rest/sitemaps/"
                 + sitemap + "/"
                 + pageId + "?type=json",
                 pageId);
