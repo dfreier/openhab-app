@@ -1,4 +1,4 @@
-package ch.hsr.baiot.openhab.app.viewholder;
+package ch.hsr.baiot.openhab.app.widget;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

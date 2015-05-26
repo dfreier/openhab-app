@@ -49,6 +49,10 @@ public class LongPollingClient implements SocketClient {
 
     private void pollPage (final String pageId, final Request request, final PublishSubject<Page> subject) {
 
+        mOkHttpClient = new OkHttpClient();
+        mOkHttpClient.setConnectTimeout(5, TimeUnit.SECONDS);
+        mOkHttpClient.setReadTimeout(20, TimeUnit.SECONDS);
+
         Call call = mOkHttpClient.newCall(request);
         mPageCalls.put(pageId, call);
         Log.d("test", "poll, " + pageId);
@@ -68,7 +72,7 @@ public class LongPollingClient implements SocketClient {
             @Override
             public void onResponse(Response response) throws IOException {
 
-                mTrackingId = response.header("X-Atmosphere-tracking-id", mTrackingId);
+                //mTrackingId = response.header("X-Atmosphere-tracking-id", mTrackingId);
                 if(!mPageCalls.containsKey(pageId)) return;
                 mPageCalls.remove(pageId);
 

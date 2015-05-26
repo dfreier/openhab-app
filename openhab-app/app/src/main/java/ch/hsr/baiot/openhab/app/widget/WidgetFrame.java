@@ -1,7 +1,5 @@
-package ch.hsr.baiot.openhab.app.viewholder;
+package ch.hsr.baiot.openhab.app.widget;
 
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -15,7 +13,7 @@ public class WidgetFrame extends SelectableWidget{
 
     public TextView textView;
 
-    public WidgetFrame(ViewGroup container, WidgetListAdapter.OnWidgetListClickListener listener) {
+    public WidgetFrame(ViewGroup container, WidgetListAdapter.OnWidgetListActionListener listener) {
         super(container, listener);
         textView = (TextView) container.findViewById(R.id.text_view);
     }

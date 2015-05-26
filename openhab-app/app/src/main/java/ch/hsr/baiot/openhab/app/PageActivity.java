@@ -14,6 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.net.SocketTimeoutException;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -27,8 +29,10 @@ import ch.hsr.baiot.openhab.sdk.model.Widget;
 import ch.hsr.baiot.openhab.sdk.model.WidgetListModel;
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
-import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
-import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import retrofit.mime.TypedByteArray;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -36,7 +40,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class PageActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener,
-        WidgetListAdapter.OnWidgetListClickListener{
+        WidgetListAdapter.OnWidgetListActionListener {
 
     private static final int SETUP_ACTIVITY_RESULT = 0;
     private static final String ARG_SITEMAP = "argSitemap";
@@ -227,7 +231,9 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
 
                     @Override
                     public void onError(Throwable e) {
-                        loadPage();
+                        if(e instanceof SocketTimeoutException) {
+                            loadPage();
+                        }
                     }
 
                     @Override
@@ -291,5 +297,41 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
             mDidStartOtherActivity = true;
             PageActivity.start(this, mSitemapName, widget.linkedPage.id, widget.linkedPage.title);
         }
+    }
+
+    @Override
+    public void onStateUpdate(Widget widget, String state) {
+        /*OpenHab.sdk().getApi().sendCommand(widget.item.name, state)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Void>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Void aVoid) {
+
+                    }
+                });*/
+
+
+        OpenHab.sdk().getApi().sendCommand(widget.item.name, new TypedByteArray("text/plain", state.getBytes()), new Callback<Void>() {
+            @Override
+            public void success(Void o, Response response) {
+                loadPage();
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
     }
 }

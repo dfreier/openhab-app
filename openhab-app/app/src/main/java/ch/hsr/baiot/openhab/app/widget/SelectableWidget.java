@@ -1,6 +1,5 @@
-package ch.hsr.baiot.openhab.app.viewholder;
+package ch.hsr.baiot.openhab.app.widget;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import ch.hsr.baiot.openhab.app.adapter.WidgetListAdapter;
@@ -11,17 +10,16 @@ import ch.hsr.baiot.openhab.sdk.model.Widget;
  */
 public class SelectableWidget extends WidgetViewHolder implements View.OnClickListener {
 
-    private WidgetListAdapter.OnWidgetListClickListener mListener;
-    public Widget widget;
+    public WidgetListAdapter.OnWidgetListActionListener listener;
 
-    public SelectableWidget(View itemView, WidgetListAdapter.OnWidgetListClickListener listener) {
+    public SelectableWidget(View itemView, WidgetListAdapter.OnWidgetListActionListener listener) {
         super(itemView);
-        mListener = listener;
+        this.listener = listener;
         itemView.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        if(mListener != null) mListener.onClick(widget);
+        if(listener != null) listener.onClick(widget);
     }
 }

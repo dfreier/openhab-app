@@ -3,17 +3,16 @@ package ch.hsr.baiot.openhab.app.adapter;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import ch.hsr.baiot.openhab.R;
-import ch.hsr.baiot.openhab.app.viewholder.WidgetFrame;
-import ch.hsr.baiot.openhab.app.viewholder.WidgetViewHolder;
+import ch.hsr.baiot.openhab.app.widget.WidgetFrame;
+import ch.hsr.baiot.openhab.app.widget.WidgetSwitch;
+import ch.hsr.baiot.openhab.app.widget.WidgetText;
+import ch.hsr.baiot.openhab.app.widget.WidgetViewHolder;
 import ch.hsr.baiot.openhab.sdk.model.ListModificationEvent;
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 import rx.Observable;
@@ -27,13 +26,13 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
 
 
     private List<Widget> mWidgets = new LinkedList<>();
-    private OnWidgetListClickListener mListener;
+    private OnWidgetListActionListener mListener;
 
     Observable<ListModificationEvent<Widget>> mModifications;
 
 
 
-    public WidgetListAdapter(Observable<ListModificationEvent<Widget>> modifications, OnWidgetListClickListener listener) {
+    public WidgetListAdapter(Observable<ListModificationEvent<Widget>> modifications, OnWidgetListActionListener listener) {
 
         mModifications = modifications;
         mListener = listener;
@@ -108,10 +107,15 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
                         .inflate(R.layout.widget_frame, viewGroup, false);
                 vh = new WidgetFrame(container, mListener);
                 break;
+            case 3:
+                container = (ViewGroup) LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.widget_switch, viewGroup, false);
+                vh = new WidgetSwitch(container, mListener);
+                break;
             default:
                 container = (ViewGroup) LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.widget_text, viewGroup, false);
-                vh = new DefaultViewHolder(container, mListener);
+                vh = new WidgetText(container, mListener);
                 break;
         }
         return vh;
@@ -127,15 +131,16 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
         else if(viewHolder.widget.type.equals("Switch") && viewHolder.widget.icon.contains("switch")){
 
             if(viewHolder.widget.icon.equals("switch-on")) {
-                ((DefaultViewHolder)viewHolder).icon.setImageResource(R.drawable.switch_on);
+                ((WidgetSwitch)viewHolder).icon.setImageResource(R.drawable.switch_on);
             } else {
-                ((DefaultViewHolder)viewHolder).icon.setImageResource(R.drawable.switch_off);
+                ((WidgetSwitch)viewHolder).icon.setImageResource(R.drawable.switch_off);
             }
-            ((DefaultViewHolder)viewHolder).textView.setText(mWidgets.get(i).label);
-            ((DefaultViewHolder)viewHolder).detailTextView.setText(mWidgets.get(i).item.state);
+            ((WidgetSwitch)viewHolder).textView.setText(mWidgets.get(i).label);
+            ((WidgetSwitch)viewHolder).detailTextView.setText(mWidgets.get(i).item.state);
+            ((WidgetSwitch)viewHolder).switchView.setChecked("ON".equals(mWidgets.get(i).item.state));
         } else {
-            ((DefaultViewHolder)viewHolder).textView.setText(mWidgets.get(i).label);
-            ((DefaultViewHolder)viewHolder).detailTextView.setText(mWidgets.get(i).item.state);
+            ((WidgetText)viewHolder).textView.setText(mWidgets.get(i).label);
+            ((WidgetText)viewHolder).detailTextView.setText(mWidgets.get(i).item.state);
         }
     }
 
@@ -144,6 +149,7 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
         Widget widget = mWidgets.get(position);
         if(widget.type.equals("Frame")) return 1;
         else if(widget.type.equals("Group")) return 2;
+        else if(widget.type.equals("Switch")) return 3;
         return 0;
     }
 
@@ -153,28 +159,10 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
     }
 
 
-    public static class DefaultViewHolder extends WidgetViewHolder implements View.OnClickListener {
-        public TextView textView;
-        public TextView detailTextView;
-        public ImageView icon;
-        private OnWidgetListClickListener mListener;
 
-        public DefaultViewHolder(ViewGroup container, OnWidgetListClickListener listener) {
-            super(container);
-            mListener = listener;
-            textView = (TextView) container.findViewById(R.id.text_view);
-            detailTextView = (TextView) container.findViewById(R.id.text_detail);
-            icon = (ImageView) container.findViewById(R.id.icon);
-            container.setOnClickListener(this);
-        }
 
-        @Override
-        public void onClick(View v) {
-            if(mListener != null) mListener.onClick(widget);
-        }
-    }
-
-    public static interface OnWidgetListClickListener {
+    public static interface OnWidgetListActionListener {
         public void onClick(Widget widget);
+        public void onStateUpdate(Widget widget, String state);
     }
 }
