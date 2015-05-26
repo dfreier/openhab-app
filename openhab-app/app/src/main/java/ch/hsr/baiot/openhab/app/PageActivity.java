@@ -1,6 +1,5 @@
 package ch.hsr.baiot.openhab.app;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,28 +8,23 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.net.SocketTimeoutException;
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import ch.hsr.baiot.openhab.R;
 import ch.hsr.baiot.openhab.app.adapter.WidgetListAdapter;
-import ch.hsr.baiot.openhab.sdk.OpenHabSdk;
+import ch.hsr.baiot.openhab.app.util.Transformations;
+import ch.hsr.baiot.openhab.sdk.OpenHab;
 import ch.hsr.baiot.openhab.sdk.model.Page;
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 import ch.hsr.baiot.openhab.sdk.model.WidgetListModel;
-import ch.hsr.baiot.openhab.sdk.websockets.SocketResponseEmptyException;
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
-import jp.wasabeef.recyclerview.animators.FadeInUpAnimator;
-import jp.wasabeef.recyclerview.animators.LandingAnimator;
-import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
-import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
-import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -74,6 +68,27 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
         args.putString(ARG_TITLE, title);
         intent.putExtras(args);
         currentActivity.startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_page, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                SetupActivity.start(this, false);
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -144,17 +159,11 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
         Log.d("test", "-------------------------------------");
         Log.d("test", "load, " + mPageId);
         setPageIsLoading(true);
-        mLoadPageSubscription = OpenHabSdk.getOpenHabApi().getPage(mSitemapName, mPageId)
+        mLoadPageSubscription = OpenHab.skd().getApi().getPage(mSitemapName, mPageId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(page -> Observable.from(page.widget))
-                .flatMap(widget -> {
-                   if (widget.type.equals("Frame")) {
-                          return Observable.from(widget.widget).startWith(widget);
-                      } else {
-                          return Observable.just(widget);
-                      }
-                 })
+                .flatMap(widget -> Transformations.flatten(widget))
                 .toList()
                 .subscribe(new Subscriber<List<Widget>>() {
                     @Override
@@ -177,22 +186,12 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
 
     private void subscribeToPageUpdates() {
 
-        mPageUpdateSubscription = OpenHabSdk.getSocketClient().open(mSitemapName, mPageId)
+        mPageUpdateSubscription = OpenHab.skd().getSocketClient().open(mSitemapName, mPageId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(page -> Observable.from(page.widget))
-                .flatMap(widget -> {
-                    if (widget.type.equals("Frame")) {
-                        return Observable.from(widget.widget).startWith(widget);
-                    } else {
-                        return Observable.just(widget);
-                    }
-                })
-                .toList()
-                .subscribe(new Subscriber<List<Widget>>() {
+                .subscribe(new Subscriber<Page>() {
                     @Override
                     public void onCompleted() {
-                        //subscribeToPageUpdates();
                         loadPage();
                     }
 
@@ -202,10 +201,8 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
                     }
 
                     @Override
-                    public void onNext(List<Widget> widgets) {
-                        //  mPage = page;
-                        //mWidgets = widgets;
-                        //updateWidgetListModel(widgets);
+                    public void onNext(Page page) {
+
                     }
                 });
     }
@@ -217,7 +214,6 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
         }
         updateWidgetListModel(mWidgets);
         setPageIsLoading(false);
-       // subscribeToPageUpdates();
     }
 
 

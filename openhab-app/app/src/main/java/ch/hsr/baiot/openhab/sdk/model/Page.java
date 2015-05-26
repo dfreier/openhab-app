@@ -1,8 +1,6 @@
 package ch.hsr.baiot.openhab.sdk.model;
 
-import ch.hsr.baiot.openhab.sdk.OpenHabSdk;
 import ch.hsr.baiot.openhab.sdk.util.ArrayUtils;
-import rx.Observable;
 
 /**
  * Created by dominik on 12.05.15.

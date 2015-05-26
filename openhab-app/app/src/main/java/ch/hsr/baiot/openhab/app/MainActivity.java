@@ -1,18 +1,18 @@
 package ch.hsr.baiot.openhab.app;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import ch.hsr.baiot.openhab.R;
-import ch.hsr.baiot.openhab.sdk.OpenHabSdk;
+import ch.hsr.baiot.openhab.sdk.OpenHab;
 import ch.hsr.baiot.openhab.sdk.api.OpenHabApi;
 import ch.hsr.baiot.openhab.sdk.model.WidgetListModel;
 import rx.Subscription;
 
 
-public class MainActivity extends Activity    {
+public class MainActivity extends ActionBarActivity {
 
     private OpenHabApi mApi;
     private WidgetListModel mWidgetListModel;
@@ -24,11 +24,14 @@ public class MainActivity extends Activity    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        OpenHabSdk.initialize();
+        OpenHab.initialize(this);
+        String endpoint =  OpenHab.skd().getEndpoint();
+        if(endpoint.isEmpty()) {
+            SetupActivity.start(this, true);
+        } else {
+            PageActivity.start(this, "demo", "demo", "Demo House");
+        }
 
-        //SetupActivity.start(this);
-
-        PageActivity.start(this, "demo", "demo", "Demo House");
     }
 
     @Override

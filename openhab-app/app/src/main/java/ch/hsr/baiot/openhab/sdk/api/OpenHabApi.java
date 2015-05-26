@@ -22,13 +22,4 @@ public interface OpenHabApi {
     @GET("/rest/sitemaps/{sitemap}/{page}?type=json")
     Observable<Page> getPage(@Path("sitemap") String sitemap, @Path("page") String page);
 
-
-    @Headers({
-            "X-Atmosphere-Transport: long-polling",
-            "X-Atmosphere-tracking-id: 12345",
-            "X-Atmosphere-Framework: 1.0",
-            "Accept: application/json"
-    })
-    @GET("/rest/sitemaps/{sitemap}/{page}?type=json")
-    Observable<Page> subscribePage(@Path("sitemap") String sitemap, @Path("page") String page);
 }

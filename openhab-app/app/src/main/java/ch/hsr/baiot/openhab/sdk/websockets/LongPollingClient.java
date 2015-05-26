@@ -14,11 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import ch.hsr.baiot.openhab.sdk.OpenHabSdk;
+import ch.hsr.baiot.openhab.sdk.OpenHab;
 import ch.hsr.baiot.openhab.sdk.model.Page;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 /**
@@ -29,6 +27,7 @@ public class LongPollingClient implements SocketClient {
 
     private OkHttpClient mOkHttpClient;
     private Map<String, Call> mPageCalls;
+    private static String mTrackingId;
 
     public LongPollingClient() {
         mOkHttpClient = new OkHttpClient();
@@ -41,7 +40,7 @@ public class LongPollingClient implements SocketClient {
         return new Request.Builder()
                 .url(url)
                 .addHeader("X-Atmosphere-Framework", "1.0")
-                .addHeader("X-Atmosphere-tracking-id", OpenHabSdk.AtmosphereTrackingId == null ? "0" : OpenHabSdk.AtmosphereTrackingId)
+                .addHeader("X-Atmosphere-tracking-id", mTrackingId == null ? "0" : mTrackingId)
                 .addHeader("Accept", "application/json")
                 .addHeader("X-Atmosphere-Transport", "long-polling")
                 .tag(pageId)
@@ -69,15 +68,14 @@ public class LongPollingClient implements SocketClient {
             @Override
             public void onResponse(Response response) throws IOException {
 
-                OpenHabSdk.AtmosphereTrackingId = response.header("X-Atmosphere-tracking-id",
-                        OpenHabSdk.AtmosphereTrackingId);
+                mTrackingId = response.header("X-Atmosphere-tracking-id", mTrackingId);
                 if(!mPageCalls.containsKey(pageId)) return;
                 mPageCalls.remove(pageId);
 
                 try {
                     if(response.isSuccessful()) {
 
-                        Gson gson = OpenHabSdk.getGsonBuilder().create();
+                        Gson gson = OpenHab.skd().getGsonBuilder().create();
                         Page page = gson.fromJson(response.body().charStream(), Page.class);
                         if(page == null) {
                             Log.d("test", "empty update, " + pageId);
@@ -102,7 +100,7 @@ public class LongPollingClient implements SocketClient {
 
 
         cancelPageCall(pageId);
-        Request request = createPollingRequest("http://demo.openhab.org:8080/rest/sitemaps/"
+        Request request = createPollingRequest( OpenHab.skd().getEndpoint() + "/rest/sitemaps/"
                 + sitemap + "/"
                 + pageId + "?type=json",
                 pageId);
@@ -112,10 +110,7 @@ public class LongPollingClient implements SocketClient {
         // IMPORTANT: return the observable that is returned from "doOnUnsubscribe".
         // If the subject is returned instead, "doOnUnsubscribe" won't be called!!!!
         return subject.doOnUnsubscribe(() -> {
-            //Log.d("test", "unsubscribe, " + pageId);
             cancelPageCall(pageId);
-        }).doOnSubscribe(() -> {
-           // Log.d("test", "subscribe, " + pageId);
         });
     }
 

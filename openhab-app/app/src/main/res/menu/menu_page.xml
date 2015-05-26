@@ -3,5 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="ch.hsr.baiot.openhab.app.PageActivity">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:icon="@drawable/ic_settings_white"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
 </menu>
