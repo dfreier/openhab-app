@@ -4,23 +4,33 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
+import android.nfc.tech.Ndef;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.nispok.snackbar.Snackbar;
 
 import ch.hsr.baiot.openhab.R;
 import ch.hsr.baiot.openhab.sdk.OpenHab;
 import ch.hsr.baiot.openhab.sdk.api.OpenHabApi;
 import ch.hsr.baiot.openhab.sdk.model.Sitemap;
 import ch.hsr.baiot.openhab.sdk.model.WidgetListModel;
+import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
     private OpenHabApi mApi;
     private WidgetListModel mWidgetListModel;
@@ -38,6 +48,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (handleNfcIntent()) return;
+
         OpenHab.initialize(this);
 
         String endpoint =  OpenHab.sdk().getEndpoint();
@@ -49,6 +61,27 @@ public class MainActivity extends ActionBarActivity {
             loadHomepage(sitemap);
         }
 
+    }
+
+    private boolean handleNfcIntent() {
+        Intent intent = getIntent();
+
+        if(intent.getAction().equals("android.nfc.action.NDEF_DISCOVERED")) {
+            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
+                    NfcAdapter.EXTRA_NDEF_MESSAGES);
+            // only one message sent during the beam
+            NdefMessage msg = (NdefMessage) rawMsgs[0];
+            // record 0 contains the MIME type, record 1 is the AAR, if present
+            String content = new String(msg.getRecords()[0].getPayload());
+            if("toggle-alarm".equals(content)) {
+                Snackbar.with(getApplicationContext())
+                        .text("Alarmmodus aktviert")
+                        .show(this);
+                return true;
+            }
+
+        }
+        return false;
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -68,7 +101,10 @@ public class MainActivity extends ActionBarActivity {
 
     private void loadHomepage(String sitemap) {
         final Activity self = this;
-        OpenHab.sdk().getApi().getSitemap(sitemap)
+        OpenHab.sdk().isSitemapAvailable(OpenHab.sdk().getEndpoint(), sitemap)
+                .flatMap(isAvailable -> {
+                   return isAvailable ? OpenHab.sdk().getApi().getSitemap(sitemap) : getThrowingSubject(new Exception());
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Sitemap>() {
@@ -87,6 +123,13 @@ public class MainActivity extends ActionBarActivity {
                         PageActivity.start(self, sitemap.name, sitemap.homepage.id, sitemap.homepage.title);
                     }
                 });
+    }
+
+    private Observable<Sitemap>  getThrowingSubject(Throwable e) {
+        Subject<Sitemap, Sitemap> subject = PublishSubject.create();
+        return subject.doOnSubscribe(() -> {
+            subject.onError(e);
+        });
     }
 
     private void showConfigErrorDialog() {
@@ -127,6 +170,7 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            SetupActivity.start(this, false, SETUP_ACTIVITY_RESULT);
             return true;
         }
 

@@ -1,5 +1,6 @@
 package ch.hsr.baiot.openhab.app.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import ch.hsr.baiot.openhab.R;
 import ch.hsr.baiot.openhab.app.widget.WidgetFrame;
+import ch.hsr.baiot.openhab.app.widget.WidgetGroup;
 import ch.hsr.baiot.openhab.app.widget.WidgetSwitch;
 import ch.hsr.baiot.openhab.app.widget.WidgetText;
 import ch.hsr.baiot.openhab.app.widget.WidgetViewHolder;
@@ -30,12 +32,15 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
 
     Observable<ListModificationEvent<Widget>> mModifications;
 
+    private Context mContext;
 
 
-    public WidgetListAdapter(Observable<ListModificationEvent<Widget>> modifications, OnWidgetListActionListener listener) {
+
+    public WidgetListAdapter(Observable<ListModificationEvent<Widget>> modifications, OnWidgetListActionListener listener, Context context) {
 
         mModifications = modifications;
         mListener = listener;
+        mContext = context;
 
 
         mModifications
@@ -107,6 +112,11 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
                         .inflate(R.layout.widget_frame, viewGroup, false);
                 vh = new WidgetFrame(container, mListener);
                 break;
+            case 2:
+                container = (ViewGroup) LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.widget_group, viewGroup, false);
+                vh = new WidgetGroup(container, mListener);
+                break;
             case 3:
                 container = (ViewGroup) LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.widget_switch, viewGroup, false);
@@ -127,6 +137,19 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
 
         if(viewHolder.widget.type.equals("Frame")) {
             ((WidgetFrame) viewHolder).textView.setText(mWidgets.get(i).label);
+        }
+        else if(viewHolder.widget.type.equals("Group")) {
+            float scale = mContext.getResources().getDisplayMetrics().density;
+            int dp8 = (int) (8*scale + 0.5f);
+            int dp4 = (int) (2*scale + 0.5f);
+            if(i == 0 || i == mWidgets.size() - 1) {
+             //   viewHolder.itemView.setPaddingRelative(dp8,dp8,dp8,dp8);
+            } else {
+               // viewHolder.itemView.setPaddingRelative(dp8,dp4,dp8,dp4);
+            }
+            ((WidgetGroup) viewHolder).titleView.setText(viewHolder.widget.label);
+            ((WidgetGroup) viewHolder).subtitleView.setText(viewHolder.widget.label);
+
         }
         else if(viewHolder.widget.type.equals("Switch") && viewHolder.widget.icon.contains("switch")){
 

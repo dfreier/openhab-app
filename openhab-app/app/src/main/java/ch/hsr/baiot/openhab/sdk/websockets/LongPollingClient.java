@@ -3,6 +3,7 @@ package ch.hsr.baiot.openhab.sdk.websockets;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.squareup.okhttp.CacheControl;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -44,14 +45,12 @@ public class LongPollingClient implements SocketClient {
                 .addHeader("Accept", "application/json")
                 .addHeader("X-Atmosphere-Transport", "long-polling")
                 .tag(pageId)
+                .cacheControl(new CacheControl.Builder().noCache().build())
                 .build();
     }
 
     private void pollPage (final String pageId, final Request request, final PublishSubject<Page> subject) {
 
-        mOkHttpClient = new OkHttpClient();
-        mOkHttpClient.setConnectTimeout(5, TimeUnit.SECONDS);
-        mOkHttpClient.setReadTimeout(20, TimeUnit.SECONDS);
 
         Call call = mOkHttpClient.newCall(request);
         mPageCalls.put(pageId, call);
@@ -72,12 +71,15 @@ public class LongPollingClient implements SocketClient {
             @Override
             public void onResponse(Response response) throws IOException {
 
-                //mTrackingId = response.header("X-Atmosphere-tracking-id", mTrackingId);
+
                 if(!mPageCalls.containsKey(pageId)) return;
                 mPageCalls.remove(pageId);
 
                 try {
-                    if(response.isSuccessful()) {
+                    mTrackingId = response.header("X-Atmosphere-tracking-id", mTrackingId);
+                    subject.onNext(null);
+                    subject.onCompleted();
+                    /*if(response.isSuccessful()) {
 
                         Gson gson = OpenHab.sdk().getGsonBuilder().create();
                         Page page = gson.fromJson(response.body().charStream(), Page.class);
@@ -90,7 +92,9 @@ public class LongPollingClient implements SocketClient {
                             subject.onCompleted();
                         }
 
-                    }
+                    } else {
+                        Log.d("test", "response but not successful, " + pageId);
+                    }*/
                 } catch(Exception e) {
                     subject.onError(e);
                 }

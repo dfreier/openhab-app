@@ -17,6 +17,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/hawkeye" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".app.PageActivity"
@@ -26,6 +31,8 @@
             android:name=".app.SetupActivity"
             android:label="@string/title_activity_setup" >
         </activity>
+
+
     </application>
 
 </manifest>

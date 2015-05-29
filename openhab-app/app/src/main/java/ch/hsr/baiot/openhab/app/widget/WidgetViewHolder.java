@@ -2,6 +2,7 @@ package ch.hsr.baiot.openhab.app.widget;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
 
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 

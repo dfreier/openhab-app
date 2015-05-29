@@ -29,6 +29,7 @@ import ch.hsr.baiot.openhab.sdk.OpenHab;
 import ch.hsr.baiot.openhab.sdk.model.Page;
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 import ch.hsr.baiot.openhab.sdk.model.WidgetListModel;
+import ch.hsr.baiot.openhab.sdk.websockets.SocketResponseEmptyException;
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
 import retrofit.Callback;
@@ -150,7 +151,9 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
         mLayoutManager = new LinearLayoutManager(this);
         mWidgetListView.setLayoutManager(mLayoutManager);
         mWidgetListView.setItemAnimator(new FadeInRightAnimator());
+
         getSupportActionBar().setTitle(mPageTitle);
+
     }
 
     private void assignArgumentsFromIntent() {
@@ -199,6 +202,7 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
         Log.d("test", "-------------------------------------");
         Log.d("test", "load, " + mPageId);
         setPageIsLoading(true);
+        subscribeToPageUpdates();
         mLoadPageSubscription = OpenHab.sdk().getApi().getPage(mSitemapName, mPageId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -221,7 +225,8 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
                         mWidgets = widgets;
                     }
                 });
-        subscribeToPageUpdates();
+
+
     }
 
     private void subscribeToPageUpdates() {
@@ -237,7 +242,7 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
 
                     @Override
                     public void onError(Throwable e) {
-                        if(e instanceof SocketTimeoutException) {
+                        if(e instanceof SocketTimeoutException || e instanceof SocketResponseEmptyException) {
                             loadPage();
                         }
                     }
@@ -277,7 +282,7 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
 
     private void assignWidgetListModelToAdapter() {
         if(mWidgetListView != null && mWidgetListModel != null) {
-            mWidgetListView.setAdapter(new WidgetListAdapter(mWidgetListModel.onModification(), this));
+            mWidgetListView.setAdapter(new WidgetListAdapter(mWidgetListModel.onModification(), this, this));
         }
     }
 
