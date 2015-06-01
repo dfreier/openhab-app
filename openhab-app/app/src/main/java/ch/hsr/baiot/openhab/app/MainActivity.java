@@ -13,9 +13,15 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
+import com.github.clans.fab.FloatingActionButton;
 import com.nispok.snackbar.Snackbar;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 import ch.hsr.baiot.openhab.R;
 import ch.hsr.baiot.openhab.sdk.OpenHab;
 import ch.hsr.baiot.openhab.sdk.api.OpenHabApi;
@@ -37,7 +43,17 @@ public class MainActivity extends Activity {
     private Subscription mPageSubscription;
     private boolean isReloading = false;
 
+    @InjectView(R.id.button_setup)
+    Button mSetupButton;
+
+    @InjectView(R.id.button_start)
+    FloatingActionButton mStartButton;
+
+
+    private Subscription mIsAvailableSubscription;
+
     private static final int SETUP_ACTIVITY_RESULT = 0;
+    private Subscription mLoadHomepageSubscription;
 
     public MainActivity() {
 
@@ -50,6 +66,7 @@ public class MainActivity extends Activity {
 
         if (handleNfcIntent()) return;
 
+        ButterKnife.inject(this);
         OpenHab.initialize(this);
 
         String endpoint =  OpenHab.sdk().getEndpoint();
@@ -58,9 +75,19 @@ public class MainActivity extends Activity {
         if(endpoint.isEmpty() || sitemap.isEmpty()) {
             SetupActivity.start(this, true, SETUP_ACTIVITY_RESULT);
         } else {
-            loadHomepage(sitemap);
+            //loadHomepage(sitemap);
+            checkIfAvailable(sitemap);
         }
 
+    }
+
+    private void checkIfAvailable(String sitemap) {
+        unsubscribeAll();
+        mIsAvailableSubscription = OpenHab.sdk().isSitemapAvailable(OpenHab.sdk().getEndpoint(), sitemap)
+                .subscribe(isAvailable -> {
+                    if (!isAvailable) showConfigErrorDialog();
+
+                });
     }
 
     private boolean handleNfcIntent() {
@@ -84,6 +111,21 @@ public class MainActivity extends Activity {
         return false;
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
+
+    private void unsubscribeAll() {
+        if(mLoadHomepageSubscription != null) {
+            mLoadHomepageSubscription.unsubscribe();
+        }
+        if(mIsAvailableSubscription != null) {
+            mIsAvailableSubscription.unsubscribe();
+        }
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SETUP_ACTIVITY_RESULT) {
             if (resultCode == RESULT_OK) {
@@ -94,14 +136,16 @@ public class MainActivity extends Activity {
                 OpenHab.sdk().setEndpoint(endpoint);
                 OpenHab.sdk().setSitemap(sitemap);
 
-                loadHomepage(sitemap);
+                checkIfAvailable(sitemap);
+                //loadHomepage(sitemap);
             }
         }
     }
 
     private void loadHomepage(String sitemap) {
         final Activity self = this;
-        OpenHab.sdk().isSitemapAvailable(OpenHab.sdk().getEndpoint(), sitemap)
+        unsubscribeAll();
+        mLoadHomepageSubscription = OpenHab.sdk().isSitemapAvailable(OpenHab.sdk().getEndpoint(), sitemap)
                 .flatMap(isAvailable -> {
                    return isAvailable ? OpenHab.sdk().getApi().getSitemap(sitemap) : getThrowingSubject(new Exception());
                 })
@@ -150,6 +194,16 @@ public class MainActivity extends Activity {
                 });
         // Create the AlertDialog object and return it
         builder.create().show();
+    }
+
+    @OnClick(R.id.button_setup)
+    public void onClick(View view) {
+        SetupActivity.start(this, false, SETUP_ACTIVITY_RESULT);
+    }
+
+    @OnClick(R.id.button_start)
+    public void onStartClick(View view) {
+        loadHomepage(OpenHab.sdk().getSitemap());
     }
 
 

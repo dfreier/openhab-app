@@ -1,4 +1,5 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" android:id="@+id/container"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:orientation="vertical"
@@ -6,20 +7,54 @@
     tools:context=".MainActivity" tools:ignore="MergeRootFrame" >
 
     <ImageView
+        android:id="@+id/house"
+        android:layout_marginTop="96dp"
         android:src="@drawable/house"
         android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
+        android:scaleType="centerInside"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="wrap_content" />
 
    <TextView
     android:id="@+id/text_view"
     android:fontFamily="sans-serif"
-    android:textColor="@color/secondary_text_default_material_light"
+    android:textColor="@color/cyan_500"
     android:textSize="56sp"
+    android:gravity="center"
     android:text="Hawk Eye"
     android:layout_margin="16dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" />
 
-</LinearLayout>
+    <RelativeLayout
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"
+        android:layout_width="fill_parent"
+        android:layout_height="72dp">
+        <Button
+            android:id="@+id/button_setup"
+            android:text="Einrichten"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="@color/primary"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/button_start"
+        android:visibility="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        android:src="@drawable/ic_ic_arrow_right"
+        fab:fab_colorNormal="@color/primary"
+        fab:fab_colorPressed="@color/primary_dark"/>
+
+
+</RelativeLayout>

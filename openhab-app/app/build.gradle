@@ -52,4 +52,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'jp.wasabeef:recyclerview-animators:1.2.0@aar'
     compile 'com.nispok:snackbar:2.10.+'
+    compile 'com.github.clans:fab:1.5.0'
 }
