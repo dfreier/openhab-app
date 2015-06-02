@@ -16,5 +16,5 @@
         android:layout_width="fill_parent"
         android:layout_height="1dip"
         android:layout_alignParentTop="true"
-        android:background="#EEEEEE"/>
+        android:background="#CFD8DC"/>
 </RelativeLayout>

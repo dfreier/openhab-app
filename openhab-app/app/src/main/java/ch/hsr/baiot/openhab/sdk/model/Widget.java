@@ -10,6 +10,7 @@ public class Widget implements MemberEquals<Widget> {
     public String type = "";
     public String label = "";
     public String icon = "";
+    public String url = "";
     public Item item = new Item();
     public Page linkedPage = new Page();
     public Widget[] widget = new Widget[0];

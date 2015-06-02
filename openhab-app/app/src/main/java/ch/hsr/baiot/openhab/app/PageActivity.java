@@ -177,6 +177,9 @@ public class PageActivity extends ActionBarActivity implements SwipeRefreshLayou
         super.onPause();
         mDidPauseWhileLoading = mPageIsLoading;
         unsubscribeFromActiveSubscriptions();
+        if(mWidgetListView != null && mWidgetListView.getAdapter() != null) {
+            ((WidgetListAdapter) mWidgetListView.getAdapter()).onPause();
+        }
     }
 
     @Override

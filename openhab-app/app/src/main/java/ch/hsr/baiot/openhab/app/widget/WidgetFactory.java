@@ -9,6 +9,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import ch.hsr.baiot.openhab.R;
+import ch.hsr.baiot.openhab.app.adapter.RefreshScheduler;
 import ch.hsr.baiot.openhab.app.adapter.WidgetListAdapter;
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 
@@ -26,12 +27,14 @@ public class WidgetFactory {
     //public static final int TYPE_MOTION = 5;
     //public static final int TYPE_ALARM = 6;
     public static final int TYPE_CAMERA = 7;
+    public static final int TYPE_WEBVIEW = 8;
 
 
     public static int getType(Widget widget) {
         if("Frame".equals(widget.type)) return TYPE_FRAME;
         else if("Group".equals(widget.type)) return TYPE_GROUP;
         else if("Switch".equals(widget.type)) return TYPE_SWITCH;
+        else if("Webview".equals(widget.type)) return TYPE_WEBVIEW;
         else return TYPE_TEXT;
         /*else if(widget.icon.contains("switch")) return TYPE_LIGHT;
         else if(widget.icon.contains("switch")) return TYPE_LIGHT;
@@ -60,6 +63,11 @@ public class WidgetFactory {
                         .inflate(R.layout.widget_switch, viewGroup, false);
                 vh = new WidgetSwitch(container, listener);
                 break;
+            case TYPE_WEBVIEW:
+                container = (ViewGroup) LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.widget_webview, viewGroup, false);
+                vh = new WidgetWebview(container);
+                break;
             default:
                 container = (ViewGroup) LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.widget_text, viewGroup, false);
@@ -69,7 +77,7 @@ public class WidgetFactory {
         return vh;
     }
 
-    public static void bindViewHolder(WidgetViewHolder viewHolder) {
+    public static void bindViewHolder(WidgetViewHolder viewHolder, RefreshScheduler scheduler) {
 
         int type = getType(viewHolder.widget);
 
@@ -86,10 +94,15 @@ public class WidgetFactory {
             case TYPE_TEXT:
                 bind((WidgetText) viewHolder);
                 break;
+            case TYPE_WEBVIEW:
+                ((WidgetWebview) viewHolder).webView.loadUrl("http://192.168.1.15:80/jpg/1/image.jpg");
+                scheduler.register((WidgetWebview) viewHolder);
+                break;
             default:
                 break;
         }
     }
+
 
     public static void bind(WidgetFrame viewHolder) {
         viewHolder.textView.setText(viewHolder.widget.label);
@@ -184,19 +197,25 @@ public class WidgetFactory {
             } else {
                 return context.getResources().getDrawable(R.drawable.ic_motion_off, context.getTheme());
             }
-        } else if("alarm-on".equals(iconName)) {
+        } else if("siren-on".equals(iconName)) {
             if(type == TYPE_GROUP) {
                 return context.getResources().getDrawable(R.drawable.ic_alarm_on_square, context.getTheme());
             } else {
                 return context.getResources().getDrawable(R.drawable.ic_alarm_on, context.getTheme());
             }
-        } else if("alarm-off".equals(iconName)) {
+        } else if("siren".equals(iconName)) {
             if(type == TYPE_GROUP) {
                 return context.getResources().getDrawable(R.drawable.ic_alarm_off_square, context.getTheme());
             } else {
                 return context.getResources().getDrawable(R.drawable.ic_alarm_off, context.getTheme());
             }
-        } else if("camera".equals(iconName)) {
+        } else if("house".equals(iconName)) {
+            if(type == TYPE_GROUP) {
+                return context.getResources().getDrawable(R.drawable.ic_camera_on_square, context.getTheme());
+            } else {
+                return context.getResources().getDrawable(R.drawable.ic_camera_on, context.getTheme());
+            }
+        } else if("house-off".equals(iconName)) {
             if(type == TYPE_GROUP) {
                 return context.getResources().getDrawable(R.drawable.ic_camera_off_square, context.getTheme());
             } else {

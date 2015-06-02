@@ -4,20 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.nfc.NdefMessage;
-import android.nfc.NfcAdapter;
-import android.nfc.tech.Ndef;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import com.github.clans.fab.FloatingActionButton;
-import com.nispok.snackbar.Snackbar;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -64,7 +57,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (handleNfcIntent()) return;
 
         ButterKnife.inject(this);
         OpenHab.initialize(this);
@@ -81,6 +73,8 @@ public class MainActivity extends Activity {
 
     }
 
+
+
     private void checkIfAvailable(String sitemap) {
         unsubscribeAll();
         mIsAvailableSubscription = OpenHab.sdk().isSitemapAvailable(OpenHab.sdk().getEndpoint(), sitemap)
@@ -90,26 +84,7 @@ public class MainActivity extends Activity {
                 });
     }
 
-    private boolean handleNfcIntent() {
-        Intent intent = getIntent();
 
-        if(intent.getAction().equals("android.nfc.action.NDEF_DISCOVERED")) {
-            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
-                    NfcAdapter.EXTRA_NDEF_MESSAGES);
-            // only one message sent during the beam
-            NdefMessage msg = (NdefMessage) rawMsgs[0];
-            // record 0 contains the MIME type, record 1 is the AAR, if present
-            String content = new String(msg.getRecords()[0].getPayload());
-            if("toggle-alarm".equals(content)) {
-                Snackbar.with(getApplicationContext())
-                        .text("Alarmmodus aktviert")
-                        .show(this);
-                return true;
-            }
-
-        }
-        return false;
-    }
 
     @Override
     protected void onPause() {

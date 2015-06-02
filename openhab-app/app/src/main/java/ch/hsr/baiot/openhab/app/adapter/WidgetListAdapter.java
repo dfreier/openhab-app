@@ -1,21 +1,18 @@
 package ch.hsr.baiot.openhab.app.adapter;
 
-import android.content.Context;
+import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import ch.hsr.baiot.openhab.R;
 import ch.hsr.baiot.openhab.app.widget.WidgetFactory;
-import ch.hsr.baiot.openhab.app.widget.WidgetFrame;
-import ch.hsr.baiot.openhab.app.widget.WidgetGroup;
-import ch.hsr.baiot.openhab.app.widget.WidgetSwitch;
-import ch.hsr.baiot.openhab.app.widget.WidgetText;
 import ch.hsr.baiot.openhab.app.widget.WidgetViewHolder;
+import ch.hsr.baiot.openhab.app.widget.WidgetWebview;
 import ch.hsr.baiot.openhab.sdk.model.ListModificationEvent;
 import ch.hsr.baiot.openhab.sdk.model.Widget;
 import rx.Observable;
@@ -25,7 +22,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by dominik on 18.05.15.
  */
-public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
+public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> implements RefreshScheduler {
 
 
     private List<Widget> mWidgets = new LinkedList<>();
@@ -33,11 +30,14 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
 
     Observable<ListModificationEvent<Widget>> mModifications;
 
-    private Context mContext;
+    private Activity mContext;
+
+    private List<WidgetWebview> mScheduledWidgets = new LinkedList<>();
+    private Timer mScheduler;
 
 
 
-    public WidgetListAdapter(Observable<ListModificationEvent<Widget>> modifications, OnWidgetListActionListener listener, Context context) {
+    public WidgetListAdapter(Observable<ListModificationEvent<Widget>> modifications, OnWidgetListActionListener listener, Activity context) {
 
         mModifications = modifications;
         mListener = listener;
@@ -111,7 +111,7 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
     @Override
     public void onBindViewHolder(WidgetViewHolder viewHolder, int i) {
         viewHolder.widget = mWidgets.get(i);
-        WidgetFactory.bindViewHolder(viewHolder);
+        WidgetFactory.bindViewHolder(viewHolder, this);
     }
 
     @Override
@@ -124,11 +124,55 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetViewHolder> {
         return mWidgets.size();
     }
 
+    @Override
+    public void register(WidgetWebview viewHolder) {
+        if(!mScheduledWidgets.contains(viewHolder)) {
+            mScheduledWidgets.add(viewHolder);
+            setupTimer();
+        }
+    }
 
+    @Override
+    public void unregister(WidgetWebview viewHolder) {
+        mScheduledWidgets.remove(viewHolder);
+    }
+
+    @Override
+    public void requestRefresh(WidgetWebview viewHolder) {
+
+    }
+
+    public void onPause() {
+        mScheduledWidgets = new LinkedList<>();
+        if(mScheduler != null) mScheduler.cancel();
+
+    }
+
+    private void setupTimer() {
+        if(mScheduler == null) {
+            mScheduler = new Timer();
+            mScheduler.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    mContext.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            for(WidgetWebview widget : mScheduledWidgets) {
+                                widget.webView.loadUrl("http://192.168.1.15:80/jpg/1/image.jpg");
+                            }
+                        }
+                    });
+                }
+            }, 0, 100);
+        }
+
+    }
 
 
     public static interface OnWidgetListActionListener {
         public void onClick(Widget widget);
         public void onStateUpdate(Widget widget, String state);
     }
+
+
 }

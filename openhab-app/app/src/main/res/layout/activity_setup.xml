@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF"
     android:id="@+id/activity_setup"
     tools:context="ch.hsr.baiot.openhab.app.SetupActivity">
 
@@ -46,7 +45,7 @@
 
             <RelativeLayout
                 android:id="@+id/container_url"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <ImageView
                     android:id="@+id/icon_tick_url"
@@ -121,7 +120,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="1dip"
                 android:layout_marginTop="32dp"
-                android:background="#EEEEEE"/>
+                android:background="#CFD8DC"/>
 
             <RelativeLayout
                 android:layout_width="fill_parent"
@@ -162,7 +161,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="1dip"
                 android:layout_marginTop="32dp"
-                android:background="#EEEEEE"/>
+                android:background="#CFD8DC"/>
 
         </LinearLayout>
 

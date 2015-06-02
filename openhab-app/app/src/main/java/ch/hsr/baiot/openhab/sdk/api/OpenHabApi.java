@@ -2,6 +2,7 @@ package ch.hsr.baiot.openhab.sdk.api;
 
 
 
+import ch.hsr.baiot.openhab.sdk.model.Item;
 import ch.hsr.baiot.openhab.sdk.model.Page;
 import ch.hsr.baiot.openhab.sdk.model.Sitemap;
 import ch.hsr.baiot.openhab.sdk.model.SitemapListHolder;
@@ -33,4 +34,10 @@ public interface OpenHabApi {
     @POST("/rest/items/{item}")
     void sendCommand(@Path("item") String item, @Body TypedInput command, Callback<Void> callback);
 
+    @Headers("Content-type: text/plain")
+    @POST("/rest/items/{item}")
+    Observable<Void> sendCommand(@Path("item") String item, @Body TypedInput command);
+
+    @GET("/rest/items/{item}?type=json")
+    Observable<Item> getItem(@Path("item") String item);
 }

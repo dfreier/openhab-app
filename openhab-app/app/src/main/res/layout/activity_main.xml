@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools" android:id="@+id/container"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#80DEEA"
+    android:background="@color/primary"
     tools:context=".MainActivity" tools:ignore="MergeRootFrame" >
 
     <ImageView
         android:id="@+id/house"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="160dp"
         android:src="@drawable/house"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
@@ -18,7 +18,7 @@
    <TextView
     android:id="@+id/text_view"
     android:fontFamily="sans-serif"
-    android:textColor="@color/cyan_500"
+    android:textColor="#FFFFFF"
     android:textSize="56sp"
     android:gravity="center"
     android:text="Hawk Eye"
@@ -34,7 +34,6 @@
         <Button
             android:id="@+id/button_setup"
             android:text="Einrichten"
-            style="?android:attr/borderlessButtonStyle"
             android:textColor="@color/primary"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
@@ -53,8 +52,8 @@
         android:layout_marginBottom="8dp"
         android:layout_marginRight="8dp"
         android:src="@drawable/ic_ic_arrow_right"
-        fab:fab_colorNormal="@color/primary"
-        fab:fab_colorPressed="@color/primary_dark"/>
+        fab:fab_colorPressed="@color/colorAccent"
+        fab:fab_colorNormal="@color/colorAccent"/>
 
 
 </RelativeLayout>
