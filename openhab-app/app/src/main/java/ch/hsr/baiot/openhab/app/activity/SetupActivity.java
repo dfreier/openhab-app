@@ -1,4 +1,4 @@
-package ch.hsr.baiot.openhab.app;
+package ch.hsr.baiot.openhab.app.activity;
 
 import android.app.Activity;
 import android.content.Intent;

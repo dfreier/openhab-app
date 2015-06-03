@@ -1,4 +1,4 @@
-package ch.hsr.baiot.openhab.app;
+package ch.hsr.baiot.openhab.app.activity;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.nispok.snackbar.Snackbar;
-import com.nispok.snackbar.SnackbarManager;
 
 import java.net.SocketTimeoutException;
 import java.util.List;

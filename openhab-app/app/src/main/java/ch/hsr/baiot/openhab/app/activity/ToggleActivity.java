@@ -1,19 +1,14 @@
-package ch.hsr.baiot.openhab.app;
+package ch.hsr.baiot.openhab.app.activity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
-import android.os.Parcelable;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.nispok.snackbar.Snackbar;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,7 +16,6 @@ import java.util.TimerTask;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import ch.hsr.baiot.openhab.R;
-import ch.hsr.baiot.openhab.app.widget.WidgetWebview;
 import ch.hsr.baiot.openhab.sdk.OpenHab;
 import ch.hsr.baiot.openhab.sdk.api.OpenHabApi;
 import retrofit.mime.TypedByteArray;

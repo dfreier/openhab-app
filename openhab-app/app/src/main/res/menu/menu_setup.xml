@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="ch.hsr.baiot.openhab.app.SetupActivity">
+    tools:context="ch.hsr.baiot.openhab.app.activity.SetupActivity">
     <item android:id="@+id/action_save"
         android:title="Save"
         android:icon="@drawable/ic_done_white"

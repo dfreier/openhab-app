@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/activity_setup"
-    tools:context="ch.hsr.baiot.openhab.app.SetupActivity">
+    tools:context="ch.hsr.baiot.openhab.app.activity.SetupActivity">
 
 
     <ScrollView

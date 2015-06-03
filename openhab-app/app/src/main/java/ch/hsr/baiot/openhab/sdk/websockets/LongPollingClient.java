@@ -79,22 +79,6 @@ public class LongPollingClient implements SocketClient {
                     mTrackingId = response.header("X-Atmosphere-tracking-id", mTrackingId);
                     subject.onNext(null);
                     subject.onCompleted();
-                    /*if(response.isSuccessful()) {
-
-                        Gson gson = OpenHab.sdk().getGsonBuilder().create();
-                        Page page = gson.fromJson(response.body().charStream(), Page.class);
-                        if(page == null) {
-                            Log.d("test", "empty update, " + pageId);
-                            throw new SocketResponseEmptyException();
-                        } else {
-                            Log.d("test", "data update, " + pageId);
-                            subject.onNext(page);
-                            subject.onCompleted();
-                        }
-
-                    } else {
-                        Log.d("test", "response but not successful, " + pageId);
-                    }*/
                 } catch(Exception e) {
                     subject.onError(e);
                 }

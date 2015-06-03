@@ -22,12 +22,7 @@ public class WidgetFactory {
     public static final int TYPE_GROUP = 1;
     public static final int TYPE_TEXT = 2;
     public static final int TYPE_SWITCH = 3;
-    //public static final int TYPE_LIGHT = 3;
-    //public static final int TYPE_WINDOW = 4;
-    //public static final int TYPE_MOTION = 5;
-    //public static final int TYPE_ALARM = 6;
-    public static final int TYPE_CAMERA = 7;
-    public static final int TYPE_WEBVIEW = 8;
+    public static final int TYPE_WEBVIEW = 4;
 
 
     public static int getType(Widget widget) {
@@ -36,12 +31,6 @@ public class WidgetFactory {
         else if("Switch".equals(widget.type)) return TYPE_SWITCH;
         else if("Webview".equals(widget.type)) return TYPE_WEBVIEW;
         else return TYPE_TEXT;
-        /*else if(widget.icon.contains("switch")) return TYPE_LIGHT;
-        else if(widget.icon.contains("switch")) return TYPE_LIGHT;
-        else if(widget.icon.contains("contact")) return TYPE_WINDOW;
-        else if(widget.icon.contains("motion")) return TYPE_MOTION;
-        else if(widget.icon.contains("alarm")) return TYPE_ALARM;
-        else return TYPE_TEXT;*/
     }
 
     public static WidgetViewHolder createViewHolder(int type, ViewGroup viewGroup, WidgetListAdapter.OnWidgetListActionListener listener) {
